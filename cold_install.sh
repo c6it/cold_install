@@ -93,22 +93,24 @@ install_tuic() {
     chmod +x tuic
 
     yellow "正在写入配置......"
-    cp $cert /etc/tuic/cert.cert
-    cp $cert /etc/tuic/key.key
-    touch /etc/tuic/config.json
+    cp $cert /etc/TUIC/cert.cert
+    cp $cert /etc/TUIC/key.key
+    touch /etc/TUIC/config.json
 
-    cat >/etc/tuic/config.json <<-EOF
+    cat >/etc/TUIC/config.json <<-EOF
         {
             "port": $port,
             "token": "$password",
-            "certificate": "/etc/tuic/cert.crt",
-            "private_key": "/etc/tuic/key.key",
+            "certificate": "/etc/TUIC/cert.crt",
+            "private_key": "/etc/TUIC/key.key",
 
             "congestion_controller": "bbr",
             "alpn": "h3"
         }
 
 EOF
+
+    jinbe joker /etc/TUIC/tuic -c /etc/TUIC/config.json
 
     red "大概安装完了吧......"
     echo ""
