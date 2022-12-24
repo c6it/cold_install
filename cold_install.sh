@@ -159,3 +159,6 @@ menu() {
         *) echo "请输入正确的选项！" && exit 1
     esac
 }
+
+action=$1
+[[ -z $1 ]] && action=menu
