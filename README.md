@@ -1,0 +1,5 @@
+# cold_install
+一键安装各种冷门科学上网协议脚本，支持TUIC
+```shell
+https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install.sh
+```
