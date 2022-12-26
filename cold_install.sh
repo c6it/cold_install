@@ -47,6 +47,37 @@ done
 [[ -z $SYSTEM ]] && red "不支持当前VPS系统，请使用主流的操作系统" && exit 1
 [[ -z $(type -P curl) ]] && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl
 
+uninstall_tuic() {
+    sudo rm  /etc/TUIC/tuic
+    sudo rm /etc/TUIC/config.json
+    red "卸载成功！证书保存在 /etc/TUIC "
+    echo ""
+    yellow "删除证书命令: "
+    echo "rm /etc/TUIC/cert.crt"
+    echo "rm /etc/TUIC/key.key"
+}
+
+start_tuic() {
+    joker /etc/TUIC/tuic -c /etc/TUIC/config.json
+    yellow "TUIC 启动成功(?)"
+}
+
+tuic_menu(){
+    yellow "管理TUIC"
+    echo ""
+    yellow "1. 安装TUIC"
+    yellow "2. 卸载TUIC"
+    yellow "3. 启动tuic"
+    echo ""
+    read -p "请选择操作: " answer
+    case $answer in
+        1) install_tuic ;;
+        2) uninstall_tuic ;;
+        3) start_tuic ;;
+        *) echo "请输入正确的选项！" && exit 1
+    esac
+}
+
 install_tuic() {
     # 判断CPU架构
     bit=`uname -m`
@@ -115,8 +146,7 @@ install_tuic() {
 
 EOF
 
-    # 后台运行
-    joker /etc/TUIC/tuic -c /etc/TUIC/config.json
+    start_tuic
 
     red "大概安装完了吧......"
     echo ""
@@ -149,7 +179,7 @@ menu() {
     echo "冷门协议安装一键脚本"
     echo "快捷命令: bash cold_install.sh"
     echo "-----------------------"
-    echo "1. 安装TUIC"
+    echo "1. TUIC"
     echo "-----------------------"
     echo "101. 安装/升级本脚本必须依赖"
     echo ""
@@ -161,7 +191,7 @@ menu() {
     read -p "请选择操作: " answer
     case $answer in
         0) exit 1 ;;
-        1) install_tuic ;;
+        1) tuic_menu ;;
         101) install_base ;;
         102) client_config ;;
         *) echo "请输入正确的选项！" && exit 1
