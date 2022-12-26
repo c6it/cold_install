@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# 字体相关
 red() {
 	echo -e "\033[31m\033[01m$1\033[0m"
 }
@@ -47,6 +48,7 @@ done
 [[ -z $(type -P curl) ]] && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl
 
 install_tuic() {
+    # 判断CPU架构
     bit=`uname -m`
     if [[ $bit = x86_64 ]]; then
         cpu=x86_64
@@ -61,7 +63,8 @@ install_tuic() {
     yellow "1. 已经准备好了自己的TLS证书和密钥"
     yellow "2. 确定你的运营商允许代理，以及允许大量UDP流量"
     yellow "3. 已经使用脚本的101选项安装了依赖"
-    yellow "回想一下自己还有什么忘做的"
+    echo ""
+    yellow "再回想一下自己还有什么忘做的吧"
     read -p "输入任意内容继续，按ctrl + c退出: " rubbish
 
     read -p "请输入tuic监听端口(100-65535): " port
@@ -83,6 +86,8 @@ install_tuic() {
     yellow "当前证书路径: $cert"
     yellow "当前私钥路径: $key"
 
+    read -p "alpn(不懂别填): " alpn
+
     tuic_version=$(curl https://raw.githubusercontent.com/tdjnodj/cold_install/api/TUIC -k)
     yellow "当前TUIC版本: $tuic_version"
     yellow "开始下载"
@@ -93,7 +98,7 @@ install_tuic() {
     chmod +x tuic
 
     yellow "正在写入配置......"
-    cp $cert /etc/TUIC/cert.cert
+    cp $cert /etc/TUIC/cert.crt
     cp $cert /etc/TUIC/key.key
     touch /etc/TUIC/config.json
 
@@ -105,12 +110,13 @@ install_tuic() {
             "private_key": "/etc/TUIC/key.key",
 
             "congestion_controller": "bbr",
-            "alpn": "h3"
+            "alpn": "alpn"
         }
 
 EOF
 
-    jinbe joker /etc/TUIC/tuic -c /etc/TUIC/config.json
+    # 后台运行
+    joker /etc/TUIC/tuic -c /etc/TUIC/config.json
 
     red "大概安装完了吧......"
     echo ""
@@ -124,13 +130,13 @@ EOF
 }
 
 install_base() {
-    yellow "正在安装 nami......"
-    bash <(curl https://bash.ooo/nami.sh)
-    yellow "正在安装joker......"
-    nami install joker
-    yellow "正在安装jinbe......"
-    nami install jinbe
-    yellow "安装完成！(大概吧"
+    yellow "请按顺序手动执行以下命令！"
+    echo ""
+    echo "bash <(curl https://bash.ooo/nami.sh)"
+    echo ""
+    echo "nami install joker"
+    echo ""
+    echo "nami install jinbe"
 }
 
 client_config() {
@@ -165,6 +171,7 @@ menu() {
 action=$1
 [[ -z $1 ]] && action=menu
 
+# 偷来的
 case "$action" in
 	menu | update | uninstall | start | restart | stop | showInfo | showLog) ${action} ;;
 	*) echo " 参数错误" && echo " 用法: $(basename $0) [menu|update|uninstall|start|restart|stop|showInfo|showLog]" ;;
