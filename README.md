@@ -3,5 +3,5 @@
 一键安装各种冷门科学上网协议脚本，支持TUIC
 
 ```shell
-curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install.sh
+curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install.sh && bash cold_install.sh
 ```
