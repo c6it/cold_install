@@ -136,12 +136,12 @@ install_tuic() {
     cat >/etc/TUIC/config.json <<-EOF
         {
             "port": $port,
-            "token": "$password",
+            "token": [ "$password" ],
             "certificate": "/etc/TUIC/cert.crt",
             "private_key": "/etc/TUIC/key.key",
 
             "congestion_controller": "bbr",
-            "alpn": "alpn"
+            "alpn": [ "alpn" ]
         }
 
 EOF
