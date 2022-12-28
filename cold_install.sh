@@ -124,10 +124,26 @@ install_ss() {
             "password": "$password",
             "method": "$method"
         }
+
+    
 EOF
     
     start_ss
     yellow "装完了？"
+    shadowshare
+}
+
+shadowshare() {
+    ip=$(curl ip.sb)
+    green "地址: $ip"
+    green "端口: $port"
+    green "加密方式: $method"
+    green "密码: $password"
+
+    echo ""
+    link=$(echo '${method}:${password}@${ip}:${port}' | base64)
+    yellow "分享链接(可能不兼容shadowsocks-2022): "
+    green "ss://$link"
 }
 
 uninstall_ss() {
@@ -144,7 +160,7 @@ ss_menu() {
     yellow "1. 安装 shadowsocks-rust"
     yellow "2. 卸载 shadowsocks-rust"
     yellow "3. 启动 shadowsocks-rust"
-    read -p "请选择: " anwser
+    read -p "请选择: " answer
     case $answer in
         1) install_ss ;;
         2) uninstall_ss ;;
