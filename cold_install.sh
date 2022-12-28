@@ -47,6 +47,111 @@ done
 [[ -z $SYSTEM ]] && red "不支持当前VPS系统，请使用主流的操作系统" && exit 1
 [[ -z $(type -P curl) ]] && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl
 
+install_ss() {
+    #CPU
+    bit=`uname -m`
+    if [[ $bit = x86_64 ]]; then
+        cpu=x86_64
+    elif [[ $bit = aarch64 ]]; then
+        cpu=aarch64
+    elif [[ $bit = arm ]]; then
+        cpu=arm
+        echo "使用本CPU时，可能安装失败！"
+    else
+        red "VPS的CPU架构为$bit 脚本不支持当前CPU架构，请使用amd64或arm64架构的CPU运行脚本" && exit
+    fi
+
+    yellow "注意: "
+    yellow "1. 请先使用 101 选项  安装依赖。"
+    yellow "回想一下有什么没做。"
+    echo ""
+    read -p "按任意键继续，按ctrl + c退出" rubbish
+
+    read -p "请输入shadowsocks监听端口(100-65535): " port
+    [[ -z "${port}" ]] && PORT=$(shuf -i200-65000 -n1)
+    if [[ "${port:0:1}" == "0" ]]; then
+        red "端口不能以0开头"
+        exit 1
+    fi
+    yellow "当前监听端口: $port"
+
+    answer="5"
+    yellow "加密方式: "
+    echo "注：带有2022字样的为shadowsocks-2022的加密方式，支持的客户端较少！"
+    echo "已剔除不安全的加密方式！"
+    red "1. 2022-blake3-chacha8-poly1305"
+    red "2. 2022-blake3-chacha20-poly1305"
+    red "3. 2022-blake3-aes-256-gcm"
+    red "4. 2022-blake3-aes-128-gcm"
+    green "5. chacha20-ietf-poly1305(默认)"
+    yellow "6. aes-256-gcm"
+    yellow "7. aes-128-gcm"
+    red "8. plain或none (无加密！)"
+    read -p "请选择加密方式: " answer
+    case $answer in
+        1) method="2022-blake3-chacha8-poly1305" ;;
+        2) method="2022-blake3-chacha20-poly1305" ;;
+        3) method="2022-blake3-aes-256-gcm" ;;
+        4) method="2022-blake3-aes-128-gcm" ;;
+        5) method="chacha20-ietf-poly1305" ;;
+        6) method="aes-256-gcm" ;;
+        7) method="aes-128-gcm" ;;
+        8) method="none" ;;
+        *) method="chacha20-ietf-poly1305" ;;
+    esac
+    yellow "当前加密方式: $method"
+
+    green "16位密码:"
+    openssl rand -base64 16
+    yellow "注意： 不填将会使用32位密码"
+    yellow "注意：除2022-blake3-aes-128-gcm使用16位密码外，其他2022系加密方式需要使用32位密码！其他随意"
+    read -p "请输入密码: " password
+    [[ -z "${password}" ]] && password=$(openssl rand -base64 32)
+    yellow "当前密码： ${password}"
+
+    # 安装
+    ss_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/shadowsocks-rust)
+    mkdir /etc/shadowsocks-rust
+    cd /etc/shadowsocks-rust
+    curl -O -L -k https://github.com/shadowsocks/shadowsocks-rust/releases/download/v${ss_version}/shadowsocks-v${ss_version}.${cpu}-unknown-linux-gnu.tar.xz
+    tar xvf shadowsocks-v${ss_version}.${cpu}-unknown-linux-gnu.tar.xz
+
+    yellow "正在写入配置......"
+    cat >/etc/shadowsocks-rust/config.json <<-EOF
+        {
+            "server": "::",
+            "server_port": $port,
+            "password": "$password",
+            "method": "$method"
+        }
+EOF
+    
+    start_ss
+    yellow "装完了？"
+}
+
+uninstall_ss() {
+    rm -rf /etc/shadowsocks-rust
+}
+
+start_ss() {
+    joker /etc/shadowsocks-rust/ssserver -c /etc/shadowsocks-rust/config.json
+}
+
+ss_menu() {
+    answer="0"
+    echo "shadowsocks-rust"
+    yellow "1. 安装 shadowsocks-rust"
+    yellow "2. 卸载 shadowsocks-rust"
+    yellow "3. 启动 shadowsocks-rust"
+    case $answer in
+        1) install_ss ;;
+        2) uninstall_ss ;;
+        3) start_ss ;;
+        *) exit 1 ;;
+    esac
+}
+
 uninstall_tuic() {
     sudo rm  /etc/TUIC/tuic
     sudo rm /etc/TUIC/config.json
@@ -63,6 +168,7 @@ start_tuic() {
 }
 
 tuic_menu(){
+    answer="0"
     yellow "管理TUIC"
     echo ""
     yellow "1. 安装TUIC"
@@ -99,8 +205,8 @@ install_tuic() {
     read -p "输入任意内容继续，按ctrl + c退出: " rubbish
 
     read -p "请输入tuic监听端口(100-65535): " port
-    [[ -z "${PORT}" ]] && PORT=$(shuf -i200-65000 -n1)
-    if [[ "${PORT:0:1}" == "0" ]]; then
+    [[ -z "${port}" ]] && PORT=$(shuf -i200-65000 -n1)
+    if [[ "${port:0:1}" == "0" ]]; then
         red "端口不能以0开头"
         exit 1
     fi
@@ -176,10 +282,12 @@ client_config() {
 
 menu() {
     clear
+    answer="0"
     echo "冷门协议安装一键脚本"
     echo "快捷命令: bash cold_install.sh"
     echo "-----------------------"
     echo "1. TUIC"
+    echo "2. shadowsocks-rust"
     echo "-----------------------"
     echo "101. 安装/升级本脚本必须依赖"
     echo ""
@@ -192,6 +300,7 @@ menu() {
     case $answer in
         0) exit 1 ;;
         1) tuic_menu ;;
+        2) ss_menu ;;
         101) install_base ;;
         102) client_config ;;
         *) echo "请输入正确的选项！" && exit 1
