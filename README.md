@@ -8,3 +8,8 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 
 # 提示
 需要依赖本项目的api，所以不建议fork使用！
+
+# 感谢
+
+- 网络跳跃: 脚本框架
+- [TxThinking](https://github.com/txthinking): nami、joker、jinbe使得任何软件都能成为守护进程。
