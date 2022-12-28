@@ -142,8 +142,8 @@ shadowshare() {
 
     echo ""
     yellow "分享链接(可能不兼容shadowsocks-2022): "
-    echo "ss://"
-    echo '${method}:${password}@${ip}:${port}' | base64
+    /etc/shadowsocks-rust/ssurl -e /etc/shadowsocks-rust/ssurl
+    echo "请讲ip地址改成自己的！"
 }
 
 uninstall_ss() {
