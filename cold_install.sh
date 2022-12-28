@@ -144,7 +144,7 @@ ss_menu() {
     yellow "1. 安装 shadowsocks-rust"
     yellow "2. 卸载 shadowsocks-rust"
     yellow "3. 启动 shadowsocks-rust"
-    read-p "请选择: " anwser
+    read -p "请选择: " anwser
     case $answer in
         1) install_ss ;;
         2) uninstall_ss ;;
