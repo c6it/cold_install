@@ -9,6 +9,14 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 # 提示
 需要依赖本项目的api，所以不建议fork使用！
 
+# PLAN
+
+- [x] TUIC
+- [x] shadowsocks
+- [ ] shadowsocks-plugin: v2ray && QUIC
+- [ ] naiveproxy
+- [ ] mieru
+
 # 感谢
 
 - 网络跳跃: 脚本框架
