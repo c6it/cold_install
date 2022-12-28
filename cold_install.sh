@@ -142,8 +142,8 @@ shadowshare() {
 
     echo ""
     yellow "分享链接(可能不兼容shadowsocks-2022): "
-    green "ss://"
-    green '${method}:${password}@${ip}:${port}' | base64
+    echo "ss://"
+    echo '${method}:${password}@${ip}:${port}' | base64
 }
 
 uninstall_ss() {
