@@ -5,3 +5,6 @@
 ```shell
 curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install.sh && bash cold_install.sh
 ```
+
+# 提示
+需要依赖本项目的api，所以不建议fork使用！
