@@ -141,9 +141,9 @@ shadowshare() {
     green "密码: $password"
 
     echo ""
-    link=$(echo '${method}:${password}@${ip}:${port}' | base64)
     yellow "分享链接(可能不兼容shadowsocks-2022): "
-    green "ss://$link"
+    green "ss://"
+    green '${method}:${password}@${ip}:${port}' | base64
 }
 
 uninstall_ss() {
@@ -151,6 +151,7 @@ uninstall_ss() {
 }
 
 start_ss() {
+    joker /etc/shadowsocks-rust/ssserver -c /etc/shadowsocks-rust/config.json
     jinbe joker /etc/shadowsocks-rust/ssserver -c /etc/shadowsocks-rust/config.json
 }
 
@@ -180,6 +181,7 @@ uninstall_tuic() {
 }
 
 start_tuic() {
+    joker /etc/TUIC/tuic -c /etc/TUIC/config.json
     jinbe joker /etc/TUIC/tuic -c /etc/TUIC/config.json
     yellow "TUIC 启动成功(?)"
 }
@@ -283,11 +285,10 @@ EOF
 }
 
 install_base() {
-    bash <(curl https://bash.ooo/nami.sh)
-    echo ""
-    nami install joker
-    echo ""
-    nami install jinbe
+    yellow "手动执行以下命令: "
+    echo "bash <(curl https://bash.ooo/nami.sh)"
+    echo "nami install joker"
+    echo "nami install jinbe"
 }
 
 client_config() {
