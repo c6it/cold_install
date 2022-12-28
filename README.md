@@ -11,11 +11,12 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 
 # PLAN
 
-- [x] TUIC
-- [x] shadowsocks
-- [ ] shadowsocks-plugin: v2ray && QUIC
-- [ ] naiveproxy
-- [ ] mieru
+- [x] [TUIC](https://github.com/EAimTY/tuic)
+- [x] [shadowsocks-rust](https://github.com/shadowsocks/shadowsocks-rust)
+- [ ] shadowsocks-plugin: [v2ray](https://github.com/shadowsocks/v2ray-plugin) && [QUIC](https://github.com/shadowsocks/qtun)
+- [ ] [naiveproxy](https://github.com/klzgrad/naiveproxy)
+- [ ] [mieru](https://github.com/enfein/mieru/)
+- [ ] [brook](https://github.com/txthinking/brook)
 
 # 感谢
 
