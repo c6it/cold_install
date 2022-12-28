@@ -17,7 +17,7 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 
 在使用了[nekoray](https://github.com/MatsuriDayo/nekoray)后，我被作者精心设计的自定义内核震惊了，它让我更简单地使用各种内核。我想：既然客户端这个大难题被解决了，服务端也不能落后！于是，这个项目诞生了。
 
-> 缤纷色彩闪出的美丽 是因它没有 分开没种色彩  --Beyond 《光辉岁月》
+> 缤纷色彩闪出的美丽 是因它没有 分开每种色彩  --Beyond 《光辉岁月》
 
 百家争鸣，百花齐放，百舸争流。
 
