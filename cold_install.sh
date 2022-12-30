@@ -47,19 +47,36 @@ done
 [[ -z $SYSTEM ]] && red "不支持当前VPS系统，请使用主流的操作系统" && exit 1
 [[ -z $(type -P curl) ]] && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl
 
+# 模块索引(line: 50)
+# (好的，现在这个索引也有些发臭了。)
+# 我的代码太混乱了，为了可读性，我把各个协议相关的模块放在这里，方便检索、维护。
+# 这代码迟早会成屎坑，希望那天我还在维护这个屎坑。
+# 如果你这个大冤种想来维护，那就想着吧。
+################################ R . I . P ##########################################
+# tuic: uninstall_tuic start_tuic tuic_menu install_tuic                            #
+# shadowsocks: ss_menu start_ss uninstall_ss shadowshare install_ss                 #
+# naiveproxy: naive_link down_naive install_naive uninstall_naive naive_menu        #
+# 其他项: install_base client_config install_go                                      #
+#####################################################################################
+# 给自己留的原则:相关代码块放一起
+
+#naiveproxy部分
+
+# naiveproxy链接
 naive_link() {
     yellow "分享链接(qv2ray的标准，非官方！): "
-    share_link="naive+https://${username}:${password}@${domain}:${port}?padding=false#Naive"
+    share_link="naive+https://${username}:${password}@${domain}:${port}?padding=false#记得把sni改为${domain}"
     green "$share_link"
 }
 
+#安装naiveproxy
 down_naive() {
     echo ""
     echo "区别: "
     yellow "1. 直接安装: 仅适用于ubuntu amd64系统，优点：快"
-    yellow "2. 编译安装: 需要 v1.14 以上版本的go语言，适合几乎任何系统。但是比较慢。"
+    yellow "2. 编译安装: 需要 v1.14 以上版本的go语言，适合几乎任何系统。但是比较慢。当前不完善！！！"
     read -p "请选择: " install_type
-    yellow "当前选择: $install_ytpe"
+    yellow "当前选择: $install_type"
     yellow "如果填错自动编译安装！"
     mkdir /etc/caddy2
     cd /etc/caddy2
@@ -74,6 +91,7 @@ down_naive() {
         rm -rf /etc/caddy2/caddy-forwardproxy-naive
         rm /etc/caddy2/caddy-forwardproxy-naive.tar.xz
     else
+    # 不完善
         red "即将开始 编译 安装，可能耗时非常久，尽量不要中途退出！！！"
         go env -w GO111MODULE=on
         go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
@@ -83,7 +101,7 @@ down_naive() {
 }
 
 install_naive() {
-# https://github.com/klzgrad/forwardproxy/releases/latest/download/caddy-forwardproxy-naive.tar.xz
+#安装大体过程
     yellow "注意事项: "
     yellow "1. 请准备好域名并解析到对应ip"
     yellow "2. 请使用101选项安装依赖"
@@ -137,7 +155,7 @@ route {
         hide_via
         probe_resistance
     }
-    reverse_proxy ${forwardlink} {
+    reverse_proxy ${forward_link} {
         header_up  Host  {upstream_hostport}
         header_up  X-Forwarded-Host  {host}
         }
@@ -160,16 +178,24 @@ EOF
     naive_link
 }
 
+uninstall_naive() {
+    rm -rf /etc/caddy2
+    red "naiveproxy卸载完毕！"
+}
+
 naive_menu() {
     yellow "naiveproxy管理"
-    echo "1. 安装预编译的naive"
+    echo "1. 安装 naiveproxy"
+    echo "2. 卸载 naiveproxy"
     read -p "请选择:" answer
     case $answer in
         1) install_naive ;;
+        2) uninstall_naive ;;
         *) exit 1 ;;
     esac
 }
 
+#shadowsocks部分
 install_ss() {
     #CPU
     bit=`uname -m`
@@ -293,6 +319,8 @@ ss_menu() {
     esac
 }
 
+# TUIC部分
+
 uninstall_tuic() {
     sudo rm  /etc/TUIC/tuic
     sudo rm /etc/TUIC/config.json
@@ -407,6 +435,8 @@ EOF
     yellow "alpn: $alpn"
 }
 
+# 其他部分
+
 install_base() {
     bash <(curl https://bash.ooo/nami.sh)
 # 等待10秒，防止curl冲掉信息，参考 https://github.com/crazypeace/naive
@@ -435,15 +465,19 @@ install_go() {
     else 
         cpu=$bit
     fi
-    curl -O -k -L https://go.dev/dl/$(curl https://go.dev/VERSION?m=text).linux-${cpu}.tar.gz
-    sleep 15
+    go_version=$(curl https://go.dev/VERSION?m=text)
+    red "当前最新版本golang: $go_version"
+    curl -O -k -L curl -O -k -L https://go.dev/dl/${go_version}.linux-${cpu}.tar.gz
+    sleep 5
     tar -xf go*.linux-${cpu}.tar.gz -C /usr/local/
     sleep 5
     export PATH=$PATH:/usr/local/go/bin
     rm -f go*.linux-${cpu}.tar.gz
     yellow "当前golang版本: "
     go version
-    yellow "如果无内容显示则输入: export PATH=$PATH:/usr/local/go/bin"
+    yellow "如果无内容显示则输入: "
+    echo "export PATH=$PATH:/usr/local/go/bin"
+    echo "常见错误原因: 未删除旧的go"
 }
 
 menu() {
@@ -454,6 +488,7 @@ menu() {
     echo "-----------------------"
     echo "1. TUIC"
     echo "2. shadowsocks-rust"
+    echo "3. naiveproxy"
     echo "-----------------------"
     echo "101. 安装/升级本脚本必须依赖"
     echo ""
@@ -479,7 +514,7 @@ menu() {
 action=$1
 [[ -z $1 ]] && action=menu
 
-# 偷来的
+# 偷来的，我也不理解......
 case "$action" in
 	menu | update | uninstall | start | restart | stop | showInfo | showLog) ${action} ;;
 	*) echo " 参数错误" && echo " 用法: $(basename $0) [menu|update|uninstall|start|restart|stop|showInfo|showLog]" ;;
