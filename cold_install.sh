@@ -645,6 +645,7 @@ menu() {
     echo "1. TUIC"
     echo "2. shadowsocks-rust"
     echo "3. naiveproxy"
+    echo "4. trojan-gfw"
     echo "-----------------------"
     echo "101. 安装/升级本脚本必须依赖"
     echo ""
