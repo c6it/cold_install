@@ -53,15 +53,166 @@ done
 # 这代码迟早会成屎坑，希望那天我还在维护这个屎坑。
 # 如果你这个大冤种想来维护，那就想着吧。
 ################################ R . I . P ##########################################
+# nginx: nginx_http                                                                 #
 # tuic: uninstall_tuic start_tuic tuic_menu install_tuic                            #
 # shadowsocks: ss_menu start_ss uninstall_ss shadowshare install_ss                 #
 # naiveproxy: naive_link down_naive install_naive uninstall_naive naive_menu        #
+# trojan: trojan_share uninstall_trojan start_trojan trojan_menu                    #
 # 其他项: install_base client_config install_go                                      #
 #####################################################################################
 # 给自己留的原则:相关代码块放一起
 
-#naiveproxy部分
+# nginx
+nginx_http() {
+    rm /etc/nginx/nginx.conf
+    cat >/etc/nginx/nginx.conf <<-EOF
+user www-date;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
 
+events {
+    worker_connections 1024;
+}
+
+http {
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    gzip on;
+
+    server {
+        listen [::]:80;
+        listen 0.0.0.0:80;
+
+        location / {
+            proxy_pass $forward_link;
+            proxy_redirect off;
+            proxy_ssl_server_name on;
+            sub_filter_once off;
+            sub_filter "$forward_link" \$server_name;
+            proxy_set_header Host "\$forward_link";
+            proxy_set_header Referer \$http_referer;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header User-Agent \$http_user_agent;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+            proxy_set_header Accept-Encoding "";
+            proxy_set_header Accept-Language "zh-CN";
+        }
+    }
+}
+		EOF
+}
+
+# trojan部分
+trojan_share() {
+    yellow "协议: trojan"
+    yellow "地址: $domain 或服务器ip"
+    yellow "端口: $port"
+    yellow "密码: $password"
+    yellow "sni: $domain"
+    echo ""
+    yellow "分享链接(推荐第一个): "
+    echo "trojan://${password}@${domain}:${port}?sni=${domain}#trojan"
+    echo "trojan://${password}@${domain}:${port}"
+    # trojan://123@127.0.0.1:1080?sni=asd&security=tls&type=tcp#asd
+    red "注意： 原版trojan不支持多路复用，请勿开启！"
+}
+
+install_trojan() {
+    yellow "1. 请准备自己的证书及域名"
+    red  "2. 请安装nginx，如果你已经安装，脚本将删除原本的配置文件！！！"
+    yellow "3. 请使用脚本101选项安装依赖"
+    read -p "输入任意内容继续，按ctrl +c 退出  " rubbish
+    echo ""
+    read -p "请输入自己的证书路径： " cert
+    [[ -z "$cert" ]] && red "请输入证书！！！"
+    yellow "当前证书: $cert"
+    echo ""
+    read -p "请输入自己的私钥路径:  " key
+    [[ -z "$key" ]] && red "请输入私钥！！！"
+    yellow "当前私钥: $key"
+    echo ""
+    read -p "请输入trojan监听端口(默认443): " port
+    [[ -z "$port" ]] && port="443"
+    yellow "当前端口: $port"
+    echo ""
+    read -p "请输入trojan密码: " password
+    [[ -z "${password}" ]] && password=$(openssl rand -base64 16)
+    yellow "当前密码: $password"
+    echo ""
+    read -p "请输入伪装网址(默认:https://www.bing.com): " forward_link
+    [[ -z "$forward_link" ]] && forward_link="https://www.bing.com"
+    echo ""
+    read -p "请输入nginx监听端口(用于防主动探测，默认80): " http_port
+    [[ -z "$http_port" ]] && http_port="80"
+    yellow "即将删除nginx配置(未开始)......"
+    sleep 5
+    red "开始配置nginx!"
+    nginx_http
+    echo ""
+    sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/trojan-gfw/trojan-quickstart/master/trojan-quickstart.sh)"
+    sleep 5
+    cp $key /usr/local/bin/key.key
+    cp $cert /usr/local/bin/cert.crt
+    yellow "正在写入trojan配置......"
+    cat >/usr/local/bin/config.json <<-EOF
+{
+    "run_type": "server",
+    "local_addr": "::",
+    "local_port": $port,
+    "remote_addr": "127.0.0.1",
+    "remote_port": $http_port,
+    "password": [
+        "$password"
+        ],
+    "ssl": {
+        "cert": "/usr/local/bin/cert.crt",
+        "key": "/usr/local/bin/key.key",
+        "alpn": [
+            "h2",
+            "http/1.1
+        ]
+    }
+}
+EOF
+    start_trojan
+    echo ""
+    yellow "装完了？"
+    trojan_share
+}
+
+uninstall_trojan() {
+    rm /usr/local/bin/trojan
+    rm /usr/local/bin/config.json
+}
+
+start_trojan() {
+    joker /usr/local/bin/trojan -c /usr/local/bin/config.json
+    jinbe joker /usr/local/bin/trojan -c /usr/local/bin/config.json
+}
+
+trojan_menu() {
+    yellow "trojan-GFW安装"
+    echo "1. 安装trojan-GFW"
+    echo "2. 删除trojan-GFW"
+    echo "3. 启动trojan"
+    read -p "请选择: " answer
+    case $answer in
+        1) install_trojan ;;
+        2) uninstall_trojan ;;
+        3) start_trojan ;;
+        *) exit 1
+    esac
+}
+
+#naiveproxy部分
 # naiveproxy链接
 naive_link() {
     yellow "分享链接(qv2ray的标准，非官方！): "
@@ -162,9 +313,7 @@ route {
 }
 EOF
 
-    cd /etc/caddy2
-    joker ./caddy run
-    jinbe joker ./caddy run
+    start_naive
 
     echo ""
     yellow "应该装完了吧......"
@@ -183,14 +332,21 @@ uninstall_naive() {
     red "naiveproxy卸载完毕！"
 }
 
+start_naive() {
+    joker /etc/caddy2 run
+    jinbe joker /etc/caddy2 run
+}
+
 naive_menu() {
     yellow "naiveproxy管理"
     echo "1. 安装 naiveproxy"
     echo "2. 卸载 naiveproxy"
+    echo "3. 启动naiveproxy"
     read -p "请选择:" answer
     case $answer in
         1) install_naive ;;
         2) uninstall_naive ;;
+        3) start_naive ;;
         *) exit 1 ;;
     esac
 }
@@ -504,6 +660,7 @@ menu() {
         1) tuic_menu ;;
         2) ss_menu ;;
         3) naive_menu ;;
+        4) trojan_menu ;;
         101) install_base ;;
         102) client_config ;;
         103) install_go ;;
