@@ -29,6 +29,7 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 - [ ] [naiveproxy](https://github.com/klzgrad/naiveproxy)
 - [ ] [mieru](https://github.com/enfein/mieru/)
 - [ ] [brook](https://github.com/txthinking/brook)
+- [ ] [shadow-tls](https://github.com/ihciah/shadow-tls)
 
 # 感谢
 
