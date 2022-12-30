@@ -285,10 +285,12 @@ EOF
 }
 
 install_base() {
-    yellow "手动执行以下命令: "
-    echo "bash <(curl https://bash.ooo/nami.sh)"
-    echo "nami install joker"
-    echo "nami install jinbe"
+    bash <(curl https://bash.ooo/nami.sh)
+# 等待5秒，防止curl冲掉信息，参考https://github.com/crazypeace/naive
+    sleep 5
+    nami install joker
+    sleep 5
+    nami install jinbe
 }
 
 client_config() {
