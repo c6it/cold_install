@@ -298,6 +298,28 @@ client_config() {
     curl -k -O -L https://raw.githubusercontent.com/tdjnodj/science_config_maker/main/science_config_maker.py && python3 science_config_maker.py
 }
 
+install_go() {
+    # CPU
+    bit=`uname -m`
+    if [[ $bit = x86_64 ]]; then
+        cpu=amd64
+    elif [[ $bit = amd64 ]]; then
+        cpu=amd64
+    elif [[ $bit = aarch64 ]]; then
+        cpu=arm64
+    elif [[ $bit = armv8 ]]; then
+        cpu=arm64
+    elif [[ $bit = armv8 ]]; then
+        cpu=arm64
+    else 
+        cpu=$bit
+    fi
+    curl -O -k https://go.dev/dl/$(curl https://go.dev/VERSION?m=text).linux-${cpu}.tar.gz
+    tar -xf go*.linux-${cpu}.tar.gz -C /usr/local/
+    export PATH=$PATH:/usr/local/go/bin
+    rm -f go*.linux-${cpu}.tar.gz
+}
+
 menu() {
     clear
     answer="0"
@@ -312,6 +334,7 @@ menu() {
     echo "如果你之前没选择过101，请先选择！"
     echo ""
     echo "102. 生成客户端配置"
+    echo "103. 安装最新版本的golang"
     echo "0. 退出"
     echo ""
     read -p "请选择操作: " answer
@@ -321,6 +344,7 @@ menu() {
         2) ss_menu ;;
         101) install_base ;;
         102) client_config ;;
+        103) install_go ;;
         *) echo "请输入正确的选项！" && exit 1
     esac
 }
