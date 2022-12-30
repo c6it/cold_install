@@ -30,7 +30,7 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 - [ ] [mieru](https://github.com/enfein/mieru/)
 - [ ] [brook](https://github.com/txthinking/brook)
 - [ ] [shadow-tls](https://github.com/ihciah/shadow-tls)
-- [ ] [trojan-rust](https://github.com/cty123/TrojanRust)
+- [ ] [trojan-gfw](https://github.com/trojan-gfw/trojan)
 
 # 感谢
 
