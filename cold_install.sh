@@ -65,7 +65,7 @@ down_naive() {
     cd /etc/caddy2
     if [[ "$install_type" == "1" ]]; then
         echo ""
-        yellow "开始安装caddy2"
+        yellow "直接安装"
         curl -O -k -L https://github.com/klzgrad/forwardproxy/releases/latest/download/caddy-forwardproxy-naive.tar.xz
         sleep 5
         apt install tar -y
@@ -74,6 +74,7 @@ down_naive() {
         rm -rf /etc/caddy2/caddy-forwardproxy-naive
         rm /etc/caddy2/caddy-forwardproxy-naive.tar.xz
     else
+        red "即将开始 编译 安装，可能耗时非常久，尽量不要中途退出！！！"
         go env -w GO111MODULE=on
         go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
         ~/go/bin/xcaddy build --with github.com/caddyserver/forwardproxy@caddy2=github.com/klzgrad/forwardproxy@naive
@@ -408,7 +409,7 @@ EOF
 
 install_base() {
     bash <(curl https://bash.ooo/nami.sh)
-# 等待10秒，防止curl冲掉信息，参考https://github.com/crazypeace/naive
+# 等待10秒，防止curl冲掉信息，参考 https://github.com/crazypeace/naive
     sleep 10
     nami install joker jinbe
 }
@@ -435,9 +436,14 @@ install_go() {
         cpu=$bit
     fi
     curl -O -k -L https://go.dev/dl/$(curl https://go.dev/VERSION?m=text).linux-${cpu}.tar.gz
+    sleep 15
     tar -xf go*.linux-${cpu}.tar.gz -C /usr/local/
+    sleep 5
     export PATH=$PATH:/usr/local/go/bin
     rm -f go*.linux-${cpu}.tar.gz
+    yellow "当前golang版本: "
+    go version
+    yellow "如果无内容显示则输入: export PATH=$PATH:/usr/local/go/bin"
 }
 
 menu() {
