@@ -34,4 +34,4 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 
 - 网络跳跃: 脚本框架
 - [TxThinking](https://github.com/txthinking): [nami](https://github.com/txthinking/nami)、[joker](https://github.com/txthinking/joker)、[jinbe](https://github.com/txthinking/jinbe) 使得任何软件都能成为守护进程。
-- naiveproxy: [不良林](https://bulianglin.com)提供的caddyfile。 [taffychan](https://github.com/taffychan/)制作的[脚本](https://github.com/taffychan/naivetest)。 [crazypeace](https://github.com/crazypeace)的[脚本](https://github.com/crazypeace/naive)。 以及伟大
+- naiveproxy: [不良林](https://bulianglin.com)提供的caddyfile。 [taffychan](https://github.com/taffychan/)制作的[脚本](https://github.com/taffychan/naivetest)。 [crazypeace](https://github.com/crazypeace)的[脚本](https://github.com/crazypeace/naive)。 以及伟大原作者[klzgrad](https://github.com/klzgrad/naiveproxy)
