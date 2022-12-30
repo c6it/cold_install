@@ -87,8 +87,8 @@ http {
     gzip on;
 
     server {
-        listen [::]:80;
-        listen 0.0.0.0:80;
+        listen [::]:$http_port;
+        listen 0.0.0.0:$http_port;
 
         location / {
             proxy_pass $forward_link;
@@ -96,7 +96,7 @@ http {
             proxy_ssl_server_name on;
             sub_filter_once off;
             sub_filter "$forward_link" \$server_name;
-            proxy_set_header Host "\$forward_link";
+            proxy_set_header Host "$forward_link";
             proxy_set_header Referer \$http_referer;
             proxy_set_header X-Real-IP \$remote_addr;
             proxy_set_header User-Agent \$http_user_agent;
@@ -155,9 +155,10 @@ install_trojan() {
     echo ""
     read -p "请输入nginx监听端口(用于防主动探测，默认80): " http_port
     [[ -z "$http_port" ]] && http_port="80"
-    yellow "即将删除nginx配置(未开始)......"
+    yellow "当前nginx监听端口: $http_port"
+    red "即将删除nginx配置(未开始)......"
     sleep 5
-    red "开始配置nginx!"
+    green "开始配置nginx!"
     nginx_http
     echo ""
     sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/trojan-gfw/trojan-quickstart/master/trojan-quickstart.sh)"
@@ -180,7 +181,7 @@ install_trojan() {
         "key": "/usr/local/bin/key.key",
         "alpn": [
             "h2",
-            "http/1.1
+            "http/1.1"
         ]
     }
 }
