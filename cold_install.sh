@@ -53,12 +53,39 @@ naive_link() {
     green "$share_link"
 }
 
-install_naive1() {
+down_naive() {
+    echo ""
+    echo "区别: "
+    yellow "1. 直接安装: 仅适用于ubuntu amd64系统，优点：快"
+    yellow "2. 编译安装: 需要 v1.14 以上版本的go语言，适合几乎任何系统。但是比较慢。"
+    read -p "请选择: " install_type
+    yellow "当前选择: $install_ytpe"
+    yellow "如果填错自动编译安装！"
+    mkdir /etc/caddy2
+    cd /etc/caddy2
+    if [[ "$install_type" == "1" ]]; then
+        echo ""
+        yellow "开始安装caddy2"
+        curl -O -k -L https://github.com/klzgrad/forwardproxy/releases/latest/download/caddy-forwardproxy-naive.tar.xz
+        sleep 5
+        apt install tar -y
+        tar -xf caddy-forwardproxy-naive.tar.xz
+        mv /etc/caddy2/caddy-forwardproxy-naive/caddy /etc/caddy2/caddy
+        rm -rf /etc/caddy2/caddy-forwardproxy-naive
+        rm /etc/caddy2/caddy-forwardproxy-naive.tar.xz
+    else
+        go env -w GO111MODULE=on
+        go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+        ~/go/bin/xcaddy build --with github.com/caddyserver/forwardproxy@caddy2=github.com/klzgrad/forwardproxy@naive
+        rm -rf go
+    fi
+}
+
+install_naive() {
 # https://github.com/klzgrad/forwardproxy/releases/latest/download/caddy-forwardproxy-naive.tar.xz
     yellow "注意事项: "
-    yellow "1. 本版本用ubuntu22.04 amd64 编译，请使用ubuntu/debian系统"
-    yellow "2. 请准备好域名并解析到对应ip"
-    yellow "3. 请使用101选项安装依赖"
+    yellow "1. 请准备好域名并解析到对应ip"
+    yellow "2. 请使用101选项安装依赖"
     echo ""
     read -p "按任意键继续，按ctrl + c退出 " rubbish
     echo ""
@@ -90,24 +117,16 @@ install_naive1() {
     yellow "当前邮箱: $email"
 
     echo ""
-    echo "请输入反向代理网址(默认: https://www.bing.com): "
+    echo "请输入反向代理网址(千万别留空！！！！！！！): "
     read -p "尽量使用https网址...... " forward_link
     [[ -z "$forward_link" ]] && forward_link="https://www.bing.com"
     yellow "当前反代地址: $forward_link"
 
-    echo ""
-    yellow "开始安装caddy2"
-    mkdir /etc/caddy2
-    cd /etc/caddy2
-    curl -O -k https://github.com/klzgrad/forwardproxy/releases/latest/download/caddy-forwardproxy-naive.tar.xz
-    tar -xf caddy-forwardproxy-naive.tar.xz
-    mv /etc/caddy2/caddy-forwardproxy-naive/caddy /etc/caddy2/caddy
-    rm -rf /etc/caddy2/caddy-forwardproxy-naive
-    rm /etc/caddy2/caddy-forwardproxy-naive.tar.xz
+    down_naive
 
     echo ""
     yellow "写入配置文件......"
-    cat >/etc/caddy2/caddyfile <<-EOF
+    cat >/etc/caddy2/Caddyfile <<-EOF
 :${port}, ${domain}:${port}
 tls ${email}
 route {
@@ -121,10 +140,12 @@ route {
         header_up  Host  {upstream_hostport}
         header_up  X-Forwarded-Host  {host}
         }
-    }
+}
 EOF
 
-    jinbe joker /etc/caddy2/caddy start
+    cd /etc/caddy2
+    joker ./caddy run
+    jinbe joker ./caddy run
 
     echo ""
     yellow "应该装完了吧......"
@@ -143,7 +164,7 @@ naive_menu() {
     echo "1. 安装预编译的naive"
     read -p "请选择:" answer
     case $answer in
-        1) install_naive1 ;;
+        1) install_naive ;;
         *) exit 1 ;;
     esac
 }
@@ -387,11 +408,9 @@ EOF
 
 install_base() {
     bash <(curl https://bash.ooo/nami.sh)
-# 等待5秒，防止curl冲掉信息，参考https://github.com/crazypeace/naive
-    sleep 5
-    nami install joker
-    sleep 5
-    nami install jinbe
+# 等待10秒，防止curl冲掉信息，参考https://github.com/crazypeace/naive
+    sleep 10
+    nami install joker jinbe
 }
 
 client_config() {
@@ -415,7 +434,7 @@ install_go() {
     else 
         cpu=$bit
     fi
-    curl -O -k https://go.dev/dl/$(curl https://go.dev/VERSION?m=text).linux-${cpu}.tar.gz
+    curl -O -k -L https://go.dev/dl/$(curl https://go.dev/VERSION?m=text).linux-${cpu}.tar.gz
     tar -xf go*.linux-${cpu}.tar.gz -C /usr/local/
     export PATH=$PATH:/usr/local/go/bin
     rm -f go*.linux-${cpu}.tar.gz
