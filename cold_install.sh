@@ -139,6 +139,9 @@ install_trojan() {
     [[ -z "$key" ]] && red "请输入私钥！！！"
     yellow "当前私钥: $key"
     echo ""
+    read -p "请输入自己的域名: " domain
+    yellow "当前域名: $domain"
+    echo ""
     read -p "请输入trojan监听端口(默认443): " port
     [[ -z "$port" ]] && port="443"
     yellow "当前端口: $port"
