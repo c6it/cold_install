@@ -26,11 +26,11 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 - [x] [TUIC](https://github.com/EAimTY/tuic)
 - [x] [shadowsocks-rust](https://github.com/shadowsocks/shadowsocks-rust)
 - [ ] shadowsocks-plugin: [v2ray](https://github.com/shadowsocks/v2ray-plugin) && [QUIC](https://github.com/shadowsocks/qtun) && [KCP](https://github.com/xtaci/kcptun)
-- [ ] [naiveproxy](https://github.com/klzgrad/naiveproxy)
+- [x] [naiveproxy](https://github.com/klzgrad/naiveproxy)
 - [ ] [mieru](https://github.com/enfein/mieru/)
 - [ ] [brook](https://github.com/txthinking/brook)
 - [ ] [shadow-tls](https://github.com/ihciah/shadow-tls)
-- [ ] [trojan-gfw](https://github.com/trojan-gfw/trojan)
+- [x] [trojan-gfw](https://github.com/trojan-gfw/trojan)
 
 # 感谢
 
