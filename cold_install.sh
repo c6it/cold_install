@@ -47,6 +47,107 @@ done
 [[ -z $SYSTEM ]] && red "不支持当前VPS系统，请使用主流的操作系统" && exit 1
 [[ -z $(type -P curl) ]] && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl
 
+naive_link() {
+    yellow "分享链接(qv2ray的标准，非官方！): "
+    share_link="naive+https://${username}:${password}@${domain}:${port}?padding=false#Naive"
+    green "$share_link"
+}
+
+install_naive1() {
+# https://github.com/klzgrad/forwardproxy/releases/latest/download/caddy-forwardproxy-naive.tar.xz
+    yellow "注意事项: "
+    yellow "1. 本版本用ubuntu22.04 amd64 编译，请使用ubuntu/debian系统"
+    yellow "2. 请准备好域名并解析到对应ip"
+    yellow "3. 请使用101选项安装依赖"
+    echo ""
+    read -p "按任意键继续，按ctrl + c退出 " rubbish
+    echo ""
+    read -p "请输入监听端口(默认443): " port
+    [[ -z "${port}" ]] && port="443"
+    if [[ "${port:0:1}" == "0" ]]; then
+        red "端口不能以0开头"
+        port="443"
+    fi
+    yellow "当前端口: $port"
+    echo ""
+    read -p "请输入用户名: " username
+    [[ -z "${username}" ]] && username=$(openssl rand -base64 6)
+    yellow "当前用户名: $username"
+    echo ""
+    read -p "请输入密码: " password
+    [[ -z "${password}" ]] && password=$(openssl rand -base64 16)
+    yellow "当前密码: $password"
+
+    echo ""
+    read -p "请输入域名: " domain
+    [[ -z "${domain}" ]] && red "请输入域名！" && exit 1
+    echo ""
+    read -p "请输入邮箱(申请证书用):  " email
+    if [[ -z "${email}" ]]; then
+        automail=$(date +%s%N | md5sum | cut -c 1-16)
+        email=${automail}@gmail.com
+    fi
+    yellow "当前邮箱: $email"
+
+    echo ""
+    echo "请输入反向代理网址(默认: https://www.bing.com): "
+    read -p "尽量使用https网址...... " forward_link
+    [[ -z "$forward_link" ]] && forward_link="https://www.bing.com"
+    yellow "当前反代地址: $forward_link"
+
+    echo ""
+    yellow "开始安装caddy2"
+    mkdir /etc/caddy2
+    cd /etc/caddy2
+    curl -O -k https://github.com/klzgrad/forwardproxy/releases/latest/download/caddy-forwardproxy-naive.tar.xz
+    tar -xf caddy-forwardproxy-naive.tar.xz
+    mv /etc/caddy2/caddy-forwardproxy-naive/caddy /etc/caddy2/caddy
+    rm -rf /etc/caddy2/caddy-forwardproxy-naive
+    rm /etc/caddy2/caddy-forwardproxy-naive.tar.xz
+
+    echo ""
+    yellow "写入配置文件......"
+    cat >/etc/caddy2/caddyfile <<-EOF
+:${port}, ${domain}:${port}
+tls ${email}
+route {
+    forward_proxy {
+        basic_auth ${username} ${password}
+        hide_ip
+        hide_via
+        probe_resistance
+    }
+    reverse_proxy ${forwardlink} {
+        header_up  Host  {upstream_hostport}
+        header_up  X-Forwarded-Host  {host}
+        }
+    }
+EOF
+
+    jinbe joker /etc/caddy2/caddy start
+
+    echo ""
+    yellow "应该装完了吧......"
+
+    echo ""
+    green "地址: $domain 或你的服务器ip"
+    green "sni: $domain"
+    green "用户名: $username"
+    green "密码: $password"
+
+    naive_link
+}
+
+naive_menu() {
+    yellow "naiveproxy管理"
+    echo "1. 安装预编译的naive"
+    read -p "请选择:" answer
+    case $answer in
+        1) install_naive1 ;;
+        *) exit 1 ;;
+    esac
+}
+
 install_ss() {
     #CPU
     bit=`uname -m`
@@ -68,7 +169,7 @@ install_ss() {
     read -p "按任意键继续，按ctrl + c退出" rubbish
 
     read -p "请输入shadowsocks监听端口(100-65535): " port
-    [[ -z "${port}" ]] && PORT=$(shuf -i200-65000 -n1)
+    [[ -z "${port}" ]] && port=$(shuf -i200-65000 -n1)
     if [[ "${port:0:1}" == "0" ]]; then
         red "端口不能以0开头"
         exit 1
@@ -342,6 +443,7 @@ menu() {
         0) exit 1 ;;
         1) tuic_menu ;;
         2) ss_menu ;;
+        3) naive_menu ;;
         101) install_base ;;
         102) client_config ;;
         103) install_go ;;
