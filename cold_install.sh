@@ -110,6 +110,103 @@ http {
 		EOF
 }
 
+# shadow-tls
+uninstall_shadow_tls() {
+    rm -rf /etc/shadow-tls
+    red "卸载成功!"
+    yellow "提示：你的后端节点并未被卸载。"
+}
+
+start_shadow_tls() {
+    joker /etc/shadow-tls/shadow-tls server --listen [::]:$port --server $forward --tls ${fake_link}:${fake_port} --password $password
+    jinbe joker /etc/shadow-tls/shadow-tls server --listen [::]:$port --server $forward --tls ${fake_link}:${fake_port} --password $password
+}
+
+install_shadow_tls() {
+    yellow "请确定: "
+    yellow "1. 已使用脚本101选项安装依赖"
+    yellow "2. 已经搭好一个节点，这个节点只能是普通的tcp模式，不要有ws、tls之类的拓展。可以使用脚本选项2:shadowsocks-rust"
+    red "3. 知道客户端如何使用！！！"
+    read -p "输入任意内容继续，按ctrl + c退出: " rubbish
+    #CPU
+    bit=`uname -m`
+    if [[ $bit = x86_64 ]]; then
+        package_name=shadow-tls-x86_64-unknown-linux-musl
+    elif [[ $bit = aarch64 ]]; then
+        package_name=shadow-tls-aarch64-unknown-linux-musl
+    elif [[ $bit = arm ]]; then
+        package_name=shadow-tls-arm-unknown-linux-musleabi
+    elif [[ $bit = armv8 ]]; then
+        package_name=shadow-tls-arm-unknown-linux-musleabi
+    else
+        red "不支持的CPU!"
+    fi
+    echo ""
+    read -p "请输入shadow-tls监听端口(默认443): " port
+    [[ -z "$port" ]] && port=443
+    yellow "当前shadow-tls监听端口: $port"
+    echo ""
+    yellow  "请输入后端节点地址，示例: 127.0.0.1:8388  "
+    yellow "要求： "
+    yellow "1. 最好为shadowsocks/VMess，用VLESS相当于裸奔"
+    yellow "2. 不要有其他传输层配置！！！不要有什么ws、tls，不要是UDP的协议！！！"
+    [[ -z  "$forward" ]] && red "请输入已经搭好的节点端口！" && exit 1
+    yellow "当前后端节点地址: $forward"
+    echo ""
+    read -p "请输入shadow-tls密码: " password
+    [[ -z "$password" ]] && password=$(openssl rand -base64 6)
+    yellow "当前密码: $password"
+    echo ""
+    yellow "请输入伪装的网址，示例: www.bing.com"
+    yellow "要求: "
+    yellow "1. 不带https"
+    yellow "2. 必须是https网站"
+    yellow "3. 别填端口"
+    read -p "请输入: " fake_link
+    [[ -z "$fake_link" ]] && fake_link="www.bing.com"
+    yellow "当前伪装地址: $fake_link"
+    echo ""
+    read -p "请输入伪装网址的端口(默认443): " $fake_port
+    [[ -z "$fake_port" ]] && $fake_port=443
+    yellow "当前伪装网址的端口: $fake_port"
+    echo ""
+    yellow "开始下载shadow-tls"
+    mkdir /etc/shadow-tls
+    cd /etc/shadow-tls
+    curl -k -O -L https://github.com/ihciah/shadow-tls/releases/latest/download/${package_name}
+    echo ""
+    sleep 3
+    mv ${package_name} shadow-tls
+    chmod shadow-tls
+    start_shadow_tls
+    yellow "装完了？"
+    echo ""
+    ip=$(curl ip.sb)
+    yellow "地址: $ip"
+    yellow "端口: $port"
+    yellow "sni: $fake_link"
+    yellow "密码: $password"
+    echo ""
+    red "客户端使用命令: "
+    red "./shadow-tls client --listen 127.0.0.1:1080 --server [${ip}]:$port --sni ${fake_link} --password ${password}"
+    yellow "将先搭好的节点的ip改为127.0.0.1端口改为1080就能连接了。"
+    yellow "注: ipv4请去掉"--server"后的中括号"
+}
+
+shadowtls_menu() {
+    yellow "shadow-tls"
+    echo "1. 安装shadow-tls"
+    echo "2. 启动shadow-tls"
+    echo "3. 卸载shadow-tls"
+    read -p "请选择: " answer
+    case $answer in
+        1) install_shadow_tls ;;
+        2) start_shadow_tls ;;
+        3) uninstall_shadow_tls ;;
+        *) exit 1 ;;
+    esac
+}
+
 # trojan部分
 trojan_share() {
     yellow "协议: trojan"
@@ -602,6 +699,8 @@ install_base() {
 # 等待10秒，防止curl冲掉信息，参考 https://github.com/crazypeace/naive
     sleep 10
     nami install joker jinbe
+    yellow "233"
+    nami install joker jinbe
 }
 
 client_config() {
@@ -666,6 +765,7 @@ menu() {
         2) ss_menu ;;
         3) naive_menu ;;
         4) trojan_menu ;;
+        5) shadowtls_menu ;;
         101) install_base ;;
         102) client_config ;;
         103) install_go ;;
