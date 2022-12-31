@@ -7,7 +7,12 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 ```
 
 # 提示
-需要依赖本项目的api，所以不建议fork使用！
+
+- 需要依赖本项目的api，所以不建议fork使用！
+
+- 脚本监听地址都是"::"，对于大部分内核来说都是监听双栈，但部分内核不一样，后续将修改。
+
+- 由于作者能力有限，安装时产生的配置可能会覆盖原配置。
 
 # 项目理念
 
