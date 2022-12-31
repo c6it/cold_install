@@ -32,7 +32,9 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 - [ ] [mieru](https://github.com/enfein/mieru/)
 - [ ] [brook](https://github.com/txthinking/brook)
 - [x] [shadow-tls](https://github.com/ihciah/shadow-tls)
-- [x] [trojan-gfw](https://github.com/trojan-gfw/trojan)
+- [x] [trojan-gfw](https://github.com/trojan-gfw/trojan)(你肯定会问为什么trojan也算，因为大部分人的trojan是用*Ray搭的，少部分是用trojan-go，用原版trojan的人其实非常少)
+
+小声说: 我很讨厌TLS，但不知不觉做了一堆tls脚本。
 
 # 感谢
 
