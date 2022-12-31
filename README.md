@@ -1,6 +1,6 @@
 # cold_install
 
-一键安装各种冷门科学上网协议脚本，支持TUIC、shadowsocks(2022)、naiveproxy、trojan-gfw
+一键安装各种冷门科学上网协议脚本，支持TUIC、shadowsocks(2022)、naiveproxy、trojan-gfw、shadow-tls
 
 ```shell
 curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install.sh && bash cold_install.sh
@@ -29,7 +29,7 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 - [x] [naiveproxy](https://github.com/klzgrad/naiveproxy)
 - [ ] [mieru](https://github.com/enfein/mieru/)
 - [ ] [brook](https://github.com/txthinking/brook)
-- [ ] [shadow-tls](https://github.com/ihciah/shadow-tls)
+- [x] [shadow-tls](https://github.com/ihciah/shadow-tls)
 - [x] [trojan-gfw](https://github.com/trojan-gfw/trojan)
 
 # 感谢
