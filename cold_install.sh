@@ -52,14 +52,15 @@ done
 # 我的代码太混乱了，为了可读性，我把各个协议相关的模块放在这里，方便检索、维护。
 # 这代码迟早会成屎坑，希望那天我还在维护这个屎坑。
 # 如果你这个大冤种想来维护，那就想着吧。
-################################ R . I . P ##########################################
-# nginx: nginx_http                                                                 #
-# tuic: uninstall_tuic start_tuic tuic_menu install_tuic                            #
-# shadowsocks: ss_menu start_ss uninstall_ss shadowshare install_ss                 #
-# naiveproxy: naive_link down_naive install_naive uninstall_naive naive_menu        #
-# trojan: trojan_share uninstall_trojan start_trojan trojan_menu                    #
-# 其他项: install_base client_config install_go                                      #
-#####################################################################################
+################################# R . I . P ###########################################
+# nginx: nginx_http                                                                   #
+# tuic: uninstall_tuic start_tuic tuic_menu install_tuic                              #
+# shadowsocks: ss_menu start_ss uninstall_ss shadowshare install_ss                   #
+# naiveproxy: naive_link down_naive install_naive uninstall_naive naive_menu          #
+# trojan: trojan_share uninstall_trojan start_trojan trojan_menu                      #
+# shadow-tls: uninstall_shadow_tls start_shadow_tls install_shadow_tls shadowtls_menu #
+# 其他项: install_base client_config install_go                                        #
+#######################################################################################
 # 给自己留的原则:相关代码块放一起
 
 # nginx
@@ -701,6 +702,9 @@ install_base() {
     nami install joker jinbe
     yellow "233"
     nami install joker jinbe
+    yellow "如果显示的信息不满一页，请输入一下命令手动安装(可同时复制两行): "
+    echo "bash <(curl https://bash.ooo/nami.sh)"
+    echo "nami install joker jinbe"
 }
 
 client_config() {
@@ -749,6 +753,7 @@ menu() {
     echo "2. shadowsocks-rust"
     echo "3. naiveproxy"
     echo "4. trojan-gfw"
+    echo "5. shadow-tls"
     echo "-----------------------"
     echo "101. 安装/升级本脚本必须依赖"
     echo ""
