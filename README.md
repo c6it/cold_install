@@ -21,6 +21,8 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 
 百家争鸣，百花齐放，百舸争流。
 
+参考[这个](https://github.com/net4people/bbs/issues/136)理念。
+
 # PLAN
 
 - [x] [TUIC](https://github.com/EAimTY/tuic)
