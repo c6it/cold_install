@@ -736,7 +736,10 @@ EOF
 # 其他部分
 
 install_base() {
-    yellow "请输入以下命令手动安装(可同时复制两行): "
+    ${PACKAGE_UPDATE[int]}
+    ${PACKAGE_INSTALL[int]} curl wget openssl
+    sleep 3
+    yellow "剩余部分请输入以下命令手动安装(可同时复制两行): "
     echo "bash <(curl https://bash.ooo/nami.sh)"
     echo "nami install joker jinbe"
 }
