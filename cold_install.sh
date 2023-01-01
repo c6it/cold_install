@@ -464,8 +464,8 @@ uninstall_naive() {
 }
 
 start_naive() {
-    joker /etc/caddy2 run
-    jinbe joker /etc/caddy2 run
+    joker /etc/caddy2/caddy run
+    jinbe joker /etc/caddy2/caddy run
 }
 
 naive_menu() {
