@@ -142,7 +142,8 @@ install_shadow_tls() {
     elif [[ $bit = armv8 ]]; then
         package_name=shadow-tls-arm-unknown-linux-musleabi
     else
-        red "不支持的CPU!"
+        red "不支持的CPU，即将使用x86_64架构的内核"
+        package_name=shadow-tls-x86_64-unknown-linux-musl
     fi
     echo ""
     read -p "请输入shadow-tls监听端口(默认443): " port
@@ -159,10 +160,10 @@ install_shadow_tls() {
     echo ""
     yellow  "请输入后端节点地址，示例: 127.0.0.1:8388  "
     yellow "要求： "
-    yellow "1. 最好为shadowsocks/VMess，用VLESS相当于裸奔"
+    yellow "1. 最好为shadowsocks/VMess，用VLESS、socks5相当于裸奔"
     yellow "2. 不要有其他传输层配置！！！不要有什么ws、tls，不要是UDP的协议！！！"
     read -p ": " $forward
-    [[ -z  "$forward" ]] && red "请输入已经搭好的节点端口！" && exit 1
+    [[ -z  "$forward" ]] && red "请输入已经搭好的节点端口！"
     yellow "当前后端节点地址: $forward"
     echo ""
     read -p "请输入shadow-tls密码: " password
@@ -785,8 +786,9 @@ install_go() {
     rm -f go*.linux-${cpu}.tar.gz
     yellow "当前golang版本: "
     go version
-    yellow "如果无内容显示则输入: "
+    yellow "请手动输入: "
     echo "export PATH=\$PATH:/usr/local/go/bin"
+    echo ""
     echo "常见错误原因: 未删除旧的go"
 }
 
