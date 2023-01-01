@@ -727,10 +727,11 @@ install_go() {
         cpu=arm64
     else 
         cpu=$bit
+	red "可能不支持本型号的CPU!"
     fi
     go_version=$(curl https://go.dev/VERSION?m=text)
     red "当前最新版本golang: $go_version"
-    curl -O -k -L curl -O -k -L https://go.dev/dl/${go_version}.linux-${cpu}.tar.gz
+    curl -O -k -L https://go.dev/dl/${go_version}.linux-${cpu}.tar.gz
     sleep 5
     tar -xf go*.linux-${cpu}.tar.gz -C /usr/local/
     sleep 5
