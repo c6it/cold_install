@@ -119,8 +119,10 @@ uninstall_shadow_tls() {
 }
 
 start_shadow_tls() {
-    joker /etc/shadow-tls/shadow-tls server --listen [::]:$port --server $forward --tls ${fake_link}:${fake_port} --password $password
-    jinbe joker /etc/shadow-tls/shadow-tls server --listen [::]:$port --server $forward --tls ${fake_link}:${fake_port} --password $password
+    ufw allow ${port}
+    systemctl reload ufw
+    joker /etc/shadow-tls/shadow-tls server --listen ${listen}:${port} --server ${forward} --tls ${fake_link}:${fake_port} --password ${password}
+    jinbe joker /etc/shadow-tls/shadow-tls server --listen ${listen}:${port} --server ${forward} --tls ${fake_link}:${fake_port} --password ${password}
 }
 
 install_shadow_tls() {
@@ -147,10 +149,19 @@ install_shadow_tls() {
     [[ -z "$port" ]] && port=443
     yellow "当前shadow-tls监听端口: $port"
     echo ""
+    yellow "shadow-tls 监听地址: "
+    yellow "监听ipv4请输入 0.0.0.0(默认)"
+    yellow "监听ipv6请输入 ::"
+    yellow "不要输多个ip！不懂别输别的"
+    read -p "" listen
+    [[ -z "$listen" ]] && listen="0.0.0.0"
+    yellow "当前监听: $listen"
+    echo ""
     yellow  "请输入后端节点地址，示例: 127.0.0.1:8388  "
     yellow "要求： "
     yellow "1. 最好为shadowsocks/VMess，用VLESS相当于裸奔"
     yellow "2. 不要有其他传输层配置！！！不要有什么ws、tls，不要是UDP的协议！！！"
+    read -p ": " $forward
     [[ -z  "$forward" ]] && red "请输入已经搭好的节点端口！" && exit 1
     yellow "当前后端节点地址: $forward"
     echo ""
@@ -197,13 +208,11 @@ install_shadow_tls() {
 shadowtls_menu() {
     yellow "shadow-tls"
     echo "1. 安装shadow-tls"
-    echo "2. 启动shadow-tls"
-    echo "3. 卸载shadow-tls"
+    echo "2. 卸载shadow-tls"
     read -p "请选择: " answer
     case $answer in
         1) install_shadow_tls ;;
-        2) start_shadow_tls ;;
-        3) uninstall_shadow_tls ;;
+        2) uninstall_shadow_tls ;;
         *) exit 1 ;;
     esac
 }
@@ -240,6 +249,14 @@ install_trojan() {
     read -p "请输入自己的域名: " domain
     yellow "当前域名: $domain"
     echo ""
+    yellow "trojan监听地址: "
+    yellow "监听ipv4请输入 0.0.0.0(默认)"
+    yellow "监听ipv6请输入 ::"
+    yellow "不要输多个ip！不懂别输别的"
+    read -p "" listen
+    [[ -z "$listen" ]] && listen="0.0.0.0"
+    yellow "当前监听: $listen"
+    echo ""
     read -p "请输入trojan监听端口(默认443): " port
     [[ -z "$port" ]] && port="443"
     yellow "当前端口: $port"
@@ -267,12 +284,12 @@ install_trojan() {
     cat >/usr/local/bin/config.json <<-EOF
 {
     "run_type": "server",
-    "local_addr": "::",
-    "local_port": $port,
+    "local_addr": "${listen}",
+    "local_port": ${port},
     "remote_addr": "127.0.0.1",
-    "remote_port": $http_port,
+    "remote_port": ${http_port},
     "password": [
-        "$password"
+        "${password}"
         ],
     "ssl": {
         "cert": "/usr/local/bin/cert.crt",
@@ -284,6 +301,9 @@ install_trojan() {
     }
 }
 EOF
+    ufw allow ${port}
+    ufw allow ${http_port}
+    systemctl reload ufw
     start_trojan
     echo ""
     yellow "装完了？"
@@ -358,10 +378,14 @@ install_naive() {
     yellow "注意事项: "
     yellow "1. 请准备好域名并解析到对应ip"
     yellow "2. 请使用101选项安装依赖"
+    yellow "3, 有 80 端口的控制权限且 80 端口无占用。"
+    port_used=$(lsof -i:80)
+    red "当前80端口占用: "
+    red "$port_used"
     echo ""
     read -p "按任意键继续，按ctrl + c退出 " rubbish
     echo ""
-    read -p "请输入监听端口(默认443): " port
+    read -p "请输入 naiveproxy 监听端口(默认443): " port
     [[ -z "${port}" ]] && port="443"
     if [[ "${port:0:1}" == "0" ]]; then
         red "端口不能以0开头"
@@ -415,6 +439,9 @@ route {
 }
 EOF
 
+    ufw allow 80
+    ufw allow ${port}
+    systemctl reload ufw
     start_naive
 
     echo ""
@@ -482,7 +509,15 @@ install_ss() {
     fi
     yellow "当前监听端口: $port"
 
-    answer="5"
+    echo ""
+    yellow "shadowsocks 监听地址: "
+    yellow "监听ipv4请输入 0.0.0.0(默认)"
+    yellow "监听ipv6请输入 ::"
+    yellow "不要输多个ip！不懂别输别的"
+    read -p "" listen
+    [[ -z "$listen" ]] && listen="0.0.0.0"
+    yellow "当前监听: $listen"
+
     yellow "加密方式: "
     echo "注：带有2022字样的为shadowsocks-2022的加密方式，支持的客户端较少！"
     echo "已剔除不安全的加密方式！"
@@ -526,7 +561,7 @@ install_ss() {
     yellow "正在写入配置......"
     cat >/etc/shadowsocks-rust/config.json <<-EOF
         {
-            "server": "::",
+            "server": "${listen}",
             "server_port": $port,
             "password": "$password",
             "method": "$method"
@@ -535,6 +570,8 @@ install_ss() {
     
 EOF
     
+    ufw allow ${port}
+    systemctl reload ufw
     start_ss
     yellow "装完了？"
     shadowshare
@@ -620,7 +657,8 @@ install_tuic() {
     elif [[ $bit = aarch64 ]]; then
         cpu=aarch64
     else
-        red "VPS的CPU架构为$bit 脚本不支持当前CPU架构，请使用amd64或arm64架构的CPU运行脚本" && exit
+        cpu="$bit"
+        red "VPS的CPU架构为$bit，可能不支持！"
     fi
 
 
@@ -740,7 +778,7 @@ install_go() {
 
 method_speed() {
     yellow "请确保此时VPS的CPU没被大量使用。"
-    yelow "部分VPS不支持"
+    yellow "部分VPS不支持"
     openssl speed aes-128-gcm aes-256-gcm chacha20-poly1305
     sleep 5
     yellow "同一列，数字越大证明加密越快，优先选择这种加密方式。"
