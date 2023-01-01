@@ -59,7 +59,7 @@ done
 # naiveproxy: naive_link down_naive install_naive uninstall_naive naive_menu          #
 # trojan: trojan_share uninstall_trojan start_trojan trojan_menu                      #
 # shadow-tls: uninstall_shadow_tls start_shadow_tls install_shadow_tls shadowtls_menu #
-# 其他项: install_base client_config install_go                                        #
+# 其他项: install_base client_config install_go method_speed                           #
 #######################################################################################
 # 给自己留的原则:相关代码块放一起
 
@@ -743,6 +743,13 @@ install_go() {
     echo "常见错误原因: 未删除旧的go"
 }
 
+method_speed() {
+    yellow "请确保此时VPS的CPU没被大量使用。"
+    openssl speed aes-128-gcm aes-256-gcm chacha20-poly1305
+    sleep 5
+    yellow "同一列，数字越大证明加密越快，优先选择这种加密方式。"
+}
+
 menu() {
     clear
     answer="0"
@@ -761,6 +768,7 @@ menu() {
     echo ""
     echo "102. 生成客户端配置"
     echo "103. 安装最新版本的golang"
+    echo "104. 各加密方式测速"
     echo "0. 退出"
     echo ""
     read -p "请选择操作: " answer
@@ -774,6 +782,7 @@ menu() {
         101) install_base ;;
         102) client_config ;;
         103) install_go ;;
+        104) method_speed ;;
         *) echo "请输入正确的选项！" && exit 1
     esac
 }
