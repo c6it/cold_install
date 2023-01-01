@@ -696,13 +696,7 @@ EOF
 # 其他部分
 
 install_base() {
-    bash <(curl https://bash.ooo/nami.sh)
-# 等待10秒，防止curl冲掉信息，参考 https://github.com/crazypeace/naive
-    sleep 10
-    nami install joker jinbe
-    yellow "233"
-    nami install joker jinbe
-    yellow "如果显示的信息不满一页，请输入一下命令手动安装(可同时复制两行): "
+    yellow "请输入一下命令手动安装(可同时复制两行): "
     echo "bash <(curl https://bash.ooo/nami.sh)"
     echo "nami install joker jinbe"
 }
@@ -727,7 +721,7 @@ install_go() {
         cpu=arm64
     else 
         cpu=$bit
-	red "可能不支持本型号的CPU!"
+        red "可能不支持该型号( $cpu )的CPU!"
     fi
     go_version=$(curl https://go.dev/VERSION?m=text)
     red "当前最新版本golang: $go_version"
@@ -746,6 +740,7 @@ install_go() {
 
 method_speed() {
     yellow "请确保此时VPS的CPU没被大量使用。"
+    yelow "部分VPS不支持"
     openssl speed aes-128-gcm aes-256-gcm chacha20-poly1305
     sleep 5
     yellow "同一列，数字越大证明加密越快，优先选择这种加密方式。"
