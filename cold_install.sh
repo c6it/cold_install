@@ -238,11 +238,11 @@ install_trojan() {
     yellow "3. 请使用脚本101选项安装依赖"
     read -p "输入任意内容继续，按ctrl +c 退出  " rubbish
     echo ""
-    read -p "请输入自己的证书路径： " cert
+    read -p "请输入自己的证书路径(请不要以"~"开头)： " cert
     [[ -z "$cert" ]] && red "请输入证书！！！"
     yellow "当前证书: $cert"
     echo ""
-    read -p "请输入自己的私钥路径:  " key
+    read -p "请输入自己的私钥路径(请不要以"~"开头):  " key
     [[ -z "$key" ]] && red "请输入私钥！！！"
     yellow "当前私钥: $key"
     echo ""
@@ -682,9 +682,9 @@ install_tuic() {
     [[ -z "$password" ]] && password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
     yellow "当前密码: $password"
 
-    read -p "请输入证书公钥路径(完整): " cert 
+    read -p "请输入证书公钥路径(完整，请不要以"~"开头): " cert 
     [[ -z "$cert" ]] && red "请输入路径！" && exit 1
-    read -p "请输入证书私钥路径(完整): " key
+    read -p "请输入证书私钥路径(完整，请不要以"~"开头): " key
     [[ -z "$key" ]] && red "请输入路径！" && exit 1
     yellow "当前证书路径: $cert"
     yellow "当前私钥路径: $key"
@@ -734,7 +734,7 @@ EOF
 # 其他部分
 
 install_base() {
-    yellow "请输入一下命令手动安装(可同时复制两行): "
+    yellow "请输入以下命令手动安装(可同时复制两行): "
     echo "bash <(curl https://bash.ooo/nami.sh)"
     echo "nami install joker jinbe"
 }
