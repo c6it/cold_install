@@ -680,6 +680,14 @@ install_tuic() {
     fi
     yellow "当前监听端口: $port"
 
+    echo ""
+    yellow "TUIC 监听地址: "
+    yellow "监听ipv4请输入 0.0.0.0"
+    yellow "监听ipv6请输入 :: (默认)"
+    yellow "不要输多个ip！不懂别输别的"
+    read -p "" listen
+    [[ -z "$listen" ]] && listen="::"
+    yellow "当前监听: $listen"
 
     read -p "请输入密码: " password
     [[ -z "$password" ]] && password=$(openssl rand -base64 8)
@@ -708,7 +716,7 @@ install_tuic() {
 
     cat >/etc/TUIC/config.json <<-EOF
 {
-    "ip": "::",
+    "ip": "${listen}",
     "port": $port,
     "token": [ "$password" ],
     "certificate": "/etc/TUIC/cert.crt",
@@ -724,11 +732,12 @@ EOF
     red "大概安装完了吧......"
     echo ""
 
+    ip=$(curl ip.sb)
     green  "客户端填写信息如下，请妥善保存。"
     yellow "server: 你的域名"
     yellow "port: $port"
     yellow "token: $password"
-    yellow "ip: 你的域名或服务器的ip"
+    yellow "ip: 你的域名或 $ip"
     yellow "alpn: 随意"
 
 }
@@ -737,7 +746,7 @@ EOF
 
 install_base() {
     ${PACKAGE_UPDATE[int]}
-    ${PACKAGE_INSTALL[int]} curl wget openssl shuf
+    ${PACKAGE_INSTALL[int]} curl wget openssl shuf python3
     sleep 3
     yellow "剩余部分请输入以下命令手动安装(可同时复制两行): "
     echo "bash <(curl https://bash.ooo/nami.sh)"
