@@ -59,7 +59,7 @@ done
 # naiveproxy: naive_link down_naive install_naive uninstall_naive naive_menu          #
 # trojan: trojan_share uninstall_trojan start_trojan trojan_menu                      #
 # shadow-tls: uninstall_shadow_tls start_shadow_tls install_shadow_tls shadowtls_menu #
-# 其他项: install_base client_config install_go method_speed                           #
+# 其他项: install_base client_config install_go method_speed get_cert                  #
 #######################################################################################
 # 给自己留的原则:相关代码块放一起
 
@@ -750,6 +750,10 @@ method_speed() {
     yellow "同一列，数字越大证明加密越快，优先选择这种加密方式。"
 }
 
+get_cert() {
+    curl -O -k https://raw.githubusercontent.com/tdjnodj/simple-acme/main/simple-acme.sh && bash simple-acme.sh
+}
+
 menu() {
     clear
     answer="0"
@@ -769,6 +773,7 @@ menu() {
     echo "102. 生成客户端配置"
     echo "103. 安装最新版本的golang"
     echo "104. 各加密方式测速"
+    echo "105. 申请TLS证书(http方式)"
     echo "0. 退出"
     echo ""
     read -p "请选择操作: " answer
@@ -783,6 +788,7 @@ menu() {
         102) client_config ;;
         103) install_go ;;
         104) method_speed ;;
+        105) get_cert ;;
         *) echo "请输入正确的选项！" && exit 1
     esac
 }
