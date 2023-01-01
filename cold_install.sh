@@ -691,8 +691,6 @@ install_tuic() {
     yellow "当前证书路径: $cert"
     yellow "当前私钥路径: $key"
 
-    read -p "alpn(不懂别填): " alpn
-
     tuic_version=$(curl https://raw.githubusercontent.com/tdjnodj/cold_install/api/TUIC -k)
     yellow "当前TUIC版本: $tuic_version"
     yellow "开始下载"
@@ -714,8 +712,7 @@ install_tuic() {
             "certificate": "/etc/TUIC/cert.crt",
             "private_key": "/etc/TUIC/key.key",
 
-            "congestion_controller": "bbr",
-            "alpn": [ "alpn" ]
+            "congestion_controller": "bbr"
         }
 
 EOF
@@ -731,13 +728,16 @@ EOF
     yellow "token: $password"
     yellow "ip: 你的域名或服务器的ip"
     yellow "alpn: $alpn"
+
+    echo ""
+    red "常见失败原因: 私钥格式不对，尽量用RSA算法的私钥"
 }
 
 # 其他部分
 
 install_base() {
     ${PACKAGE_UPDATE[int]}
-    ${PACKAGE_INSTALL[int]} curl wget openssl
+    ${PACKAGE_INSTALL[int]} curl wget openssl shuf
     sleep 3
     yellow "剩余部分请输入以下命令手动安装(可同时复制两行): "
     echo "bash <(curl https://bash.ooo/nami.sh)"
