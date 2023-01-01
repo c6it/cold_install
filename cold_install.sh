@@ -265,12 +265,14 @@ install_trojan() {
     [[ -z "${password}" ]] && password=$(openssl rand -base64 16)
     yellow "当前密码: $password"
     echo ""
-    read -p "请输入伪装网址(默认:https://www.bing.com): " forward_link
+    read -p "请输入伪装网址(默认:https://www.bing.com ，尽量使用https) : " forward_link
     [[ -z "$forward_link" ]] && forward_link="https://www.bing.com"
+    yellow "当前伪装网址: ${forward_link}"
     echo ""
     read -p "请输入nginx监听端口(用于防主动探测，默认80): " http_port
     [[ -z "$http_port" ]] && http_port="80"
     yellow "当前nginx监听端口: $http_port"
+    echo ""
     red "即将删除nginx配置(未开始)......"
     sleep 5
     green "开始配置nginx!"
@@ -527,7 +529,7 @@ install_ss() {
     red "4. 2022-blake3-aes-128-gcm"
     green "5. chacha20-ietf-poly1305(默认)"
     yellow "6. aes-256-gcm"
-    yellow "7. aes-128-gcm"
+    yellow "7. aes-128-gcm(推荐)"
     red "8. plain或none (无加密！)"
     read -p "请选择加密方式: " answer
     case $answer in
@@ -782,6 +784,7 @@ method_speed() {
     openssl speed aes-128-gcm aes-256-gcm chacha20-poly1305
     sleep 5
     yellow "同一列，数字越大证明加密越快，优先选择这种加密方式。"
+    yellow "如无法测速，推荐使用 aes-128-gcm"
 }
 
 get_cert() {
