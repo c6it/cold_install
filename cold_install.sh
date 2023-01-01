@@ -359,7 +359,7 @@ down_naive() {
         echo ""
         yellow "直接安装"
         curl -O -k -L https://github.com/klzgrad/forwardproxy/releases/latest/download/caddy-forwardproxy-naive.tar.xz
-        sleep 5
+        sleep 3
         apt install tar -y
         tar -xf caddy-forwardproxy-naive.tar.xz
         mv /etc/caddy2/caddy-forwardproxy-naive/caddy /etc/caddy2/caddy
@@ -367,11 +367,12 @@ down_naive() {
         rm /etc/caddy2/caddy-forwardproxy-naive.tar.xz
     else
     # 不完善
-        red "即将开始 编译 安装，可能耗时非常久，尽量不要中途退出！！！"
+        red "即将开始 编译 安装，可能耗时非常久(取决于cpu)，尽量不要中途退出！！！"
+        go mod tidy
         go env -w GO111MODULE=on
         go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
         ~/go/bin/xcaddy build --with github.com/caddyserver/forwardproxy@caddy2=github.com/klzgrad/forwardproxy@naive
-        rm -rf go
+        rm -rf /root/go
     fi
 }
 
@@ -780,13 +781,13 @@ install_go() {
     curl -O -k -L https://go.dev/dl/${go_version}.linux-${cpu}.tar.gz
     sleep 5
     tar -xf go*.linux-${cpu}.tar.gz -C /usr/local/
-    sleep 5
-    export PATH=$PATH:/usr/local/go/bin
+    sleep 3
+    export PATH=\$PATH:/usr/local/go/bin
     rm -f go*.linux-${cpu}.tar.gz
     yellow "当前golang版本: "
     go version
     yellow "如果无内容显示则输入: "
-    echo "export PATH=$PATH:/usr/local/go/bin"
+    echo "export PATH=\$PATH:/usr/local/go/bin"
     echo "常见错误原因: 未删除旧的go"
 }
 
