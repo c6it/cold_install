@@ -589,7 +589,7 @@ shadowshare() {
     echo ""
     yellow "分享链接(可能不兼容shadowsocks-2022): "
     /etc/shadowsocks-rust/ssurl -e /etc/shadowsocks-rust/config.json
-    echo "请讲ip地址改成自己的！"
+    echo "请将ip地址改成自己的！"
 }
 
 uninstall_ss() {
