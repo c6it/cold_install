@@ -6,6 +6,18 @@
 curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install.sh && bash cold_install.sh
 ```
 
+# 一些必要组件
+
+```
+# debian/Ubuntu 
+apt update
+apt install openssl curl wget -y
+
+# CentOS
+yum update
+yum install openssl curl wget -y
+```
+
 # 提示
 
 - 需要依赖本项目的api，所以不建议fork使用！
