@@ -673,7 +673,7 @@ install_tuic() {
     read -p "输入任意内容继续，按ctrl + c退出: " rubbish
 
     read -p "请输入tuic监听端口(100-65535): " port
-    [[ -z "${port}" ]] && PORT=$(shuf -i200-65000 -n1)
+    [[ -z "${port}" ]] && port=$(shuf -i200-65000 -n1)
     if [[ "${port:0:1}" == "0" ]]; then
         red "端口不能以0开头"
         exit 1
