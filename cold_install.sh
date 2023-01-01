@@ -360,7 +360,6 @@ down_naive() {
         yellow "直接安装"
         curl -O -k -L https://github.com/klzgrad/forwardproxy/releases/latest/download/caddy-forwardproxy-naive.tar.xz
         sleep 3
-        apt install tar -y
         tar -xf caddy-forwardproxy-naive.tar.xz
         mv /etc/caddy2/caddy-forwardproxy-naive/caddy /etc/caddy2/caddy
         rm -rf /etc/caddy2/caddy-forwardproxy-naive
@@ -747,7 +746,7 @@ EOF
 
 install_base() {
     ${PACKAGE_UPDATE[int]}
-    ${PACKAGE_INSTALL[int]} curl wget openssl shuf python3
+    ${PACKAGE_INSTALL[int]} curl wget openssl shuf python3 tar
     sleep 3
     yellow "剩余部分请输入以下命令手动安装(可同时复制两行): "
     echo "bash <(curl https://bash.ooo/nami.sh)"
