@@ -702,7 +702,7 @@ install_tuic() {
 
     yellow "正在写入配置......"
     cp $cert /etc/TUIC/cert.crt
-    cp $cert /etc/TUIC/key.key
+    cp $key /etc/TUIC/key.key
     touch /etc/TUIC/config.json
 
     cat >/etc/TUIC/config.json <<-EOF
@@ -727,10 +727,8 @@ EOF
     yellow "port: $port"
     yellow "token: $password"
     yellow "ip: 你的域名或服务器的ip"
-    yellow "alpn: $alpn"
+    yellow "alpn: 随意"
 
-    echo ""
-    red "常见失败原因: 私钥格式不对，尽量用RSA算法的私钥"
 }
 
 # 其他部分
