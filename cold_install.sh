@@ -680,8 +680,9 @@ install_tuic() {
     fi
     yellow "当前监听端口: $port"
 
+
     read -p "请输入密码: " password
-    [[ -z "$password" ]] && password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
+    [[ -z "$password" ]] && password=$(openssl rand -base64 8)
     yellow "当前密码: $password"
 
     read -p "请输入证书公钥路径(完整，请不要以"~"开头): " cert 
@@ -706,14 +707,15 @@ install_tuic() {
     touch /etc/TUIC/config.json
 
     cat >/etc/TUIC/config.json <<-EOF
-        {
-            "port": $port,
-            "token": [ "$password" ],
-            "certificate": "/etc/TUIC/cert.crt",
-            "private_key": "/etc/TUIC/key.key",
+{
+    "ip": "::",
+    "port": $port,
+    "token": [ "$password" ],
+    "certificate": "/etc/TUIC/cert.crt",
+    "private_key": "/etc/TUIC/key.key",
 
-            "congestion_controller": "bbr"
-        }
+    "congestion_controller": "bbr"
+}
 
 EOF
 
