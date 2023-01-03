@@ -59,6 +59,24 @@ nami install joker jinbe
 
 小声说: 我很讨厌TLS，但不知不觉做了一堆tls脚本。
 
+# 常见疑问
+
+F: 怎么要填那么多信息啊？我不知道怎么办？
+
+Q: 大多数的脚本虽然复杂、精心设计，但留给用户定义的部分比较少。为了满足一些控制欲强但技术不够的用户，我给出了很多自定义的项目。如果你不懂，完全可以不填，除了一些填路径等地方，其他大部分交互都可以直接回车启用默认值。
+
+---------------------------------------------------------
+
+F: 我听说[shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev)很有名的样子，为什么本脚本要使用shadowsokcs-rust呢？
+
+Q: 官方写到:"Future development moved to shadowsocks-rust."官方都提出未来要转向rust了，早日跟进。而且似乎libev不支持最新的shadowsocks-2022加密方式。
+
+----------------------------------------------------------
+
+F: 为什么安装的过程很快，甚至填写信息的时间都比安装过程久？
+
+Q: 别的脚本安装依赖和安装内核是连在一起的，但是我把依赖单独做成一个选项。另外，得益于[TxThinking](https://github.com/txthinking)的[joker](https://github.com/txthinking/joker)和[jinbe](https://github.com/txthinking/jinbe)，我能一键将内核设置为守护进程。
+
 # 感谢
 
 - 网络跳跃: 脚本框架
