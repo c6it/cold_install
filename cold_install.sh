@@ -167,7 +167,7 @@ uninstall_shadow_tls() {
 
 start_shadow_tls() {
     ufw allow ${port}
-    systemctl reload ufw
+    ufw reload
     joker /etc/shadow-tls/shadow-tls server --listen ${listen}:${port} --server ${forward} --tls ${fake_link}:${fake_port} --password ${password}
     jinbe joker /etc/shadow-tls/shadow-tls server --listen ${listen}:${port} --server ${forward} --tls ${fake_link}:${fake_port} --password ${password}
 }
@@ -227,7 +227,7 @@ install_shadow_tls() {
     yellow "当前伪装地址: $fake_link"
     echo ""
     read -p "请输入伪装网址的端口(默认443): " fake_port
-    [[ -z "$fake_port" ]] && $fake_port=443
+    [[ -z "$fake_port" ]] && fake_port=443
     yellow "当前伪装网址的端口: $fake_port"
     echo ""
     yellow "开始下载shadow-tls"
@@ -237,7 +237,7 @@ install_shadow_tls() {
     echo ""
     sleep 3
     mv ${package_name} shadow-tls
-    chmod shadow-tls
+    chmod +x shadow-tls
     start_shadow_tls
     yellow "装完了？"
     echo ""
@@ -347,7 +347,7 @@ install_trojan() {
 }
 EOF
     ufw allow ${port}
-    systemctl reload ufw
+    ufw reload
     start_trojan
     echo ""
     yellow "装完了？"
@@ -490,7 +490,7 @@ EOF
 
     ufw allow 80
     ufw allow ${port}
-    systemctl reload ufw
+    ufw reload
     start_naive
 
     echo ""
@@ -620,7 +620,7 @@ install_ss() {
 EOF
     
     ufw allow ${port}
-    systemctl reload ufw
+    ufw reload
     start_ss
     yellow "装完了？"
     shadowshare
