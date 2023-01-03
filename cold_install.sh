@@ -600,7 +600,7 @@ install_ss() {
 
     yellow "插件选择: "
     yellow "0. 无插件(默认)"
-    yellow "1. v2Ray-lpugin"
+    yellow "1. *Ray-lpugin"
     read -p "清选择: " choose_plugin
     case $choose_plugin in
         1) plugin="v2Ray-plugin" ;;
@@ -616,6 +616,7 @@ install_ss() {
         yellow "1. http模式(默认)"
         yellow "2. websocket(ws)"
         yellow "3. QUIC(强制开启TLS)"
+        green "4. gRPC(xray-plugin)"
         red "注: 想用TLS请自备证书！"
         echo ""
         read -p "清选择: " answer
@@ -623,6 +624,7 @@ install_ss() {
             1) transport=http ;;
             2) transport=ws ;;
             3) transport=quic && tls="true" ;;
+            4) transport=gRPC ;;
             *) transport=http ;;
         esac
         echo ""
@@ -652,6 +654,16 @@ install_ss() {
             done
             yellow "当前ws路径: $wspath"
         fi
+        if [[ "$transport" == "gRPC" ]]; then
+            read -p "是否开启TLS(Y/n)?" answer
+            if [[ "$answer" == "n" ]]; then
+               tls="false"
+               read -p "请输入您的域名(默认: a.189.cn): " domain
+               [[ -z "$domain" ]] && domain="a.189.cn"
+            else
+               tls="true"
+            fi
+        fi
         yellow "TLS开启情况: $tls"
         echo ""
         if [[ "$tls" == "true" ]]; then
@@ -676,6 +688,13 @@ install_ss() {
         elif [[ "$transport" == "quic" ]]; then
             semicolon=";"
             plugin_opts="mode=quic;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
+        elif [[ "$transport" == "gRPC" ]]; then
+            semicolon=";"
+            if [[ "$tls" == "true" ]]; then
+                plugin_opts="mode=grpc;tls;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
+            elif [[ "$tls" == "false" ]]; then
+                plugin_opts="mode=grpc;host=${domain}"
+            fi
         fi
     fi
 
@@ -717,11 +736,35 @@ EOF
         fi
         cd /etc/shadowsocks-rust
         yellow "开始下载 $plugin "
-        v2Ray_plugin_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/v2Ray-plugin)
-        curl -L -k -O https://github.com/shadowsocks/v2ray-plugin/releases/download/v${v2Ray_plugin_version}/v2ray-plugin-linux-${cpu}-v${v2Ray_plugin_version}.tar.gz
-        tar xvf *.tar.gz
-        rm *.tar.gz
-        mv v2ray-plugin_linux* v2Ray-plugin
+        read -p "是否改用xray插件(如果用gRPC则必选xray)(Y/n)？" v2orx
+        if [[ "$v2orx" == "n" ]]; then
+            if [[ "$transport" == "gRPC" ]]; then
+                ray_plugin="x"
+                red "由于你选择了 gRPC 作为传输模式，强制使用xray-plugin!"
+            else
+                ray_plugin="v"
+                echo ""
+                green "当前插件: v2Ray-plugin"
+            fi
+        else 
+            ray_plugin="x"
+            echo ""
+            yellow "当前插件: xray-plugin"
+        fi
+        echo ""
+        if [[ "$ray_plugin" == "v" ]]; then
+            v2Ray_plugin_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/v2Ray-plugin)
+            curl -L -k -O https://github.com/shadowsocks/v2ray-plugin/releases/download/v${v2Ray_plugin_version}/v2ray-plugin-linux-${cpu}-v${v2Ray_plugin_version}.tar.gz
+            tar xvf *.tar.gz
+            rm *.tar.gz
+            mv v2ray-plugin_linux* v2Ray-plugin
+        elif [[ "$ray_plugin" == "x" ]]; then
+            xray_plugin_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/xray-plugin)
+            curl -L -k -O https://github.com/teddysun/xray-plugin/releases/download/v${xray_plugin_version}/xray-plugin-linux-${cpu}-v${xray_plugin_version}.tar.gz
+            tar xvf *.tar.gz
+            rm *.tar.gz
+            mv xray-plugin_linux* v2Ray-plugin
+        fi
         if [[ "$tls" == "true" ]]; then
             cp $cert /etc/shadowsocks-rust/cert.crt
             cp $key /etc/shadowsocks-rust/key.key
