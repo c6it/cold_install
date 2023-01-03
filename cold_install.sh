@@ -53,7 +53,7 @@ done
 # 这代码迟早会成屎坑，希望那天我还在维护这个屎坑。
 # 如果你这个大冤种想来维护，那就想着吧。
 ################################# R . I . P ###########################################
-# nginx: nginx_http                                                                   #
+# nginx: nginx_forward_http install_nginx uninstall_nginx nginx_menu                  #
 # tuic: uninstall_tuic start_tuic tuic_menu install_tuic                              #
 # shadowsocks: ss_menu start_ss uninstall_ss shadowshare install_ss                   #
 # naiveproxy: naive_link down_naive install_naive uninstall_naive naive_menu          #
@@ -64,7 +64,27 @@ done
 # 给自己留的原则:相关代码块放一起
 
 # nginx
-nginx_http() {
+nginx_forward_http() {
+    yellow "请注意: "
+    yellow "1. 会删除原先的nginx配置"
+    yellow "2. 将反向代理一个https网站"
+    yellow "3. nginx只提供http服务"
+    echo ""
+    read -p "输入任意内容继续，按ctrl + c 退出: " rubbish
+    echo ""
+    read -p "请输入nginx监听端口(默认80): " http_port
+    [[ -z "$http_port" ]] && http_port=80
+    yellow "当前nginx监听: $http_port"
+    echo ""
+    yellow "示例: https://www.bing.com"
+    read -p "请输入反代网站(必须为https!): " forward_link
+    [[ -z "$forward_link" ]] && forward_link="https://www.bing.com"
+    yellow "当前反代网站: $forward_link "
+    echo ""
+
+    red "即将配置nginx，3秒后删除原先配置文件！"
+    sleep 3
+
     rm /etc/nginx/nginx.conf
     cat >/etc/nginx/nginx.conf <<-EOF
 user root;
@@ -111,6 +131,31 @@ http {
 		EOF
     systemctl stop nginx
     systemctl start nginx
+
+    yellow "装完了？"
+}
+
+install_nginx() {
+    ${PACKAGE_INSTALL[int]} nginx
+}
+
+uninstall_nginx() {
+    ${PACKAGE_UNINSTALL[int]} nginx
+}
+
+nginx_menu() {
+    green "nginx"
+    echo ""
+    yellow "1. 安装nginx"
+    yellow "2. 卸载nginx"
+    yellow "3. 配置nginx: 反代一个https网站为http服务"
+    read -p "请选择: " answer
+    case $answer in
+        1) install_nginx ;;
+        2) uninstall_nginx ;;
+        3) nginx_forward_http ;;
+        *) exit 1 ;;
+    esac
 }
 
 # shadow-tls
@@ -237,7 +282,7 @@ trojan_share() {
 
 install_trojan() {
     yellow "1. 请准备自己的证书及域名"
-    red  "2. 请安装nginx，如果你已经安装，脚本将删除原本的配置文件！！！"
+    red  "2. 请有一个用于回落的http服务，可以在本机，也可以在别的地方，可使用本脚本106安装的nginx服务。"
     yellow "3. 请使用脚本101选项安装依赖"
     read -p "输入任意内容继续，按ctrl +c 退出  " rubbish
     echo ""
@@ -268,18 +313,13 @@ install_trojan() {
     [[ -z "${password}" ]] && password=$(openssl rand -base64 16)
     yellow "当前密码: $password"
     echo ""
-    read -p "请输入伪装网址(默认:https://www.bing.com ，尽量使用https) : " forward_link
-    [[ -z "$forward_link" ]] && forward_link="https://www.bing.com"
-    yellow "当前伪装网址: ${forward_link}"
+    yellow "请输入回落端口(用于防止主动探测，默认80。): " fallback_port
+    [[ -z "$fallback_port" ]] && fallback_port=80
+    yellow "当前回落端口: $fallback_port"
     echo ""
-    read -p "请输入nginx监听端口(用于防主动探测，默认80): " http_port
-    [[ -z "$http_port" ]] && http_port="80"
-    yellow "当前nginx监听端口: $http_port"
-    echo ""
-    red "即将删除nginx配置(未开始)......"
-    sleep 5
-    green "开始配置nginx!"
-    nginx_http
+    yellow "请输入回落地址(默认127.0.0.1): " fallback_add
+    [[ -z "$fallback_add" ]] && fallback_add="127.0.0.1"
+    yellow "当前回落地址: $fallback_add"
     echo ""
     sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/trojan-gfw/trojan-quickstart/master/trojan-quickstart.sh)"
     sleep 5
@@ -307,7 +347,6 @@ install_trojan() {
 }
 EOF
     ufw allow ${port}
-    ufw allow ${http_port}
     systemctl reload ufw
     start_trojan
     echo ""
@@ -343,8 +382,12 @@ trojan_menu() {
 # naiveproxy链接
 naive_link() {
     yellow "分享链接(qv2ray的标准，非官方！): "
-    share_link="naive+https://${username}:${password}@${domain}:${port}?padding=false#记得把sni改为${domain}"
-    green "$share_link"
+    naive_httpslink="naive+https://${username}:${password}@${domain}:${port}?padding=false#记得把sni改为${domain}"
+    green "$naive_httpslink"
+    echo ""
+    yellow "测试链接: 使用quic传输，更快，但隐蔽性未知。"
+    naive_quiclink="naive+quic://${username}:${password}@${domain}:${port}?padding=false#记得把sni改为${domain}"
+    green "$naive_quiclink"
 }
 
 #安装naiveproxy
@@ -833,7 +876,8 @@ menu() {
     echo "102. 生成客户端配置"
     echo "103. 安装最新版本的golang"
     echo "104. 各加密方式测速"
-    echo "105. 申请TLS证书(http方式)"
+    echo "105. 申请TLS证书(http方式/自签)"
+    green "106. nginx功能"
     echo "0. 退出"
     echo ""
     read -p "请选择操作: " answer
@@ -849,6 +893,7 @@ menu() {
         103) install_go ;;
         104) method_speed ;;
         105) get_cert ;;
+        106) nginx_menu ;;
         *) echo "请输入正确的选项！" && exit 1
     esac
 }
