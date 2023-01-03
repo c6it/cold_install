@@ -611,11 +611,12 @@ install_ss() {
     # 设置插件
     if [[ "$plugin"=="v2Ray-plugin" ]]; then
         tls="false"
+        echo ""
         yellow "传输模式: "
         yellow "1. http模式(默认)"
         yellow "2. websocket(ws)"
         yellow "3. QUIC(强制开启TLS)"
-        yellow "注: 想用TLS请自备证书！"
+        red "注: 想用TLS请自备证书！"
         echo ""
         read -p "清选择: " answer
         case $answer in
@@ -625,7 +626,7 @@ install_ss() {
             *) transport=http ;;
         esac
         echo ""
-        if [[ "$answer"=="2" ]]; then
+        if [[ "$transport"=="http" ]]; then
             read -p "是否开启TLS?(Y/n)" answer
             if [[ "$answer"=="n" ]]; then
                 tls="false"
