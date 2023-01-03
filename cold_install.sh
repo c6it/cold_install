@@ -663,15 +663,15 @@ install_ss() {
             yellow "当前域名: $domain"
         fi
 
-        if [[ "$transport"=="http" ]]; then
+        if [[ "$transport" == "http" ]]; then
             plugin_opts=""
-        elif [[ "$transport"=="ws" ]]; then
-            if [[ tls="true" ]]; then
+        elif [[ "$transport" == "ws" ]]; then
+            if [[ "tls" == "true" ]]; then
                 plugin_opts=";tls;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
-            elif [[ tls="false" ]]; then
+            elif [[ "tls" == "false" ]]; then
                 plugin_opts=";host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
             fi
-        elif [[ "$transport"=="quic" ]]; then
+        elif [[ "$transport" == "quic" ]]; then
             plugin_opts=";mode=quic;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
         fi
     fi
@@ -719,6 +719,8 @@ EOF
         tar xvf *.tar.gz
         rm *.tar.gz
         mv v2ray-plugin_linux* v2Ray-plugin
+        cp $cert /etc/shadowsocks-rust/cert.crt
+        cp $key /etc/shadowsocks-rust/key.key
         cat >/etc/shadowsocks-rust/config.json <<-EOF
 {
     "server": "${listen}",
@@ -751,23 +753,24 @@ shadowshare() {
         green "端口: $port"
         green "加密方式: $method"
         green "密码: $password"
+        green "插件: $plugin"
         echo ""
-        if [[ "$transport"=="http" ]]; then
+        if [[ "$transport" == "http" ]]; then
             client_opts="不填！"
-        elif [[ "$transport"=="ws" ]]; then
-            if [[ "$tls"=="true" ]]; then
+        elif [[ "$transport" == "ws" ]]; then
+            if [[ "$tls" == "true" ]]; then
                 client_opts="tls;host=${domain};path=${wspath}"
-            elif [[ "$tls"=="false" ]]; then
+            elif [[ "$tls" == "false" ]]; then
                 client_opts="host=${domain};path=${wspath}"
             fi
-        elif [[ "$transport"=="quic" ]]; then
+        elif [[ "$transport" == "quic" ]]; then
             client_opts="mode=quic;host=${domain}"
         fi
         green "插件参数: $client_opts"
     fi
 
     echo ""
-    yellow "分享链接: "
+    yellow "分享链接(如果使用插件则不能使用！): "
     /etc/shadowsocks-rust/ssurl -e /etc/shadowsocks-rust/config.json
     echo "请将ip地址改成自己的！"
 }
