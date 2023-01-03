@@ -626,7 +626,7 @@ install_ss() {
             *) transport=http ;;
         esac
         echo ""
-        if [[ "$transport"=="http" ]]; then
+        if [[ "$transport"=="ws" ]]; then
             read -p "是否开启TLS?(Y/n)" answer
             if [[ "$answer"=="n" ]]; then
                 tls="false"
