@@ -69,7 +69,7 @@ Q: 大多数的脚本虽然复杂、精心设计，但留给用户定义的部�
 
 F: 我听说[shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev)很有名的样子，为什么本脚本要使用shadowsokcs-rust呢？
 
-Q: 官方写到:"Future development moved to shadowsocks-rust."官方都提出未来要转向rust了，早日跟进。而且似乎libev不支持最新的shadowsocks-2022加密方式。
+Q: shadowsocks-libev官方写到:"Future development moved to shadowsocks-rust."libev官方都提出未来要转向rust了，作为使用者应该积极配合、早日跟进。而且似乎libev不支持最新的shadowsocks-2022加密方式。
 
 ----------------------------------------------------------
 
