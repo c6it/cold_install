@@ -4,7 +4,7 @@
 
 稳定版(推荐)：
 
-···shell
+```shell
 curl -O https://tdjnodj.github.io/cold_install/cold_install.sh && bash cold_install.sh
 ```
 
