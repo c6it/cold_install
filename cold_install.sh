@@ -654,7 +654,7 @@ install_ss() {
         fi
         yellow "TLS开启情况: $tls"
         echo ""
-        if [[ "$tls" ==" true" ]]; then
+        if [[ "$tls" == "true" ]]; then
             read -p "请输入证书路径(请不要以"~"开头！): " cert
             yellow "当前证书：$cert"
             read -p "请输入密钥路径(请不要以"~"开头！): " key
