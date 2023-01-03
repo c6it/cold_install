@@ -1,6 +1,6 @@
 # cold_install
 
-一键安装各种冷门科学上网协议脚本，支持TUIC、shadowsocks(2022)、naiveproxy、trojan-gfw、shadow-tls
+一键安装各种冷门科学上网协议脚本，支持TUIC、shadowsocks(2022)+v2Ray-plugin、naiveproxy、trojan-gfw、shadow-tls
 
 ```shell
 curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install.sh && bash cold_install.sh
@@ -50,7 +50,7 @@ nami install joker jinbe
 
 - [x] [TUIC](https://github.com/EAimTY/tuic)
 - [x] [shadowsocks-rust](https://github.com/shadowsocks/shadowsocks-rust)
-- [ ] shadowsocks-plugin: [v2ray](https://github.com/shadowsocks/v2ray-plugin)(测试中) && [QUIC](https://github.com/shadowsocks/qtun) && [KCP](https://github.com/xtaci/kcptun)
+- [ ] shadowsocks-plugin: [v2ray](https://github.com/shadowsocks/v2ray-plugin)(已实现) && [QUIC](https://github.com/shadowsocks/qtun) && [KCP](https://github.com/xtaci/kcptun)
 - [x] [naiveproxy](https://github.com/klzgrad/naiveproxy)
 - [ ] [mieru](https://github.com/enfein/mieru/)
 - [ ] [brook](https://github.com/txthinking/brook)
