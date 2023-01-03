@@ -626,9 +626,9 @@ install_ss() {
             *) transport=http ;;
         esac
         echo ""
-        if [[ "$transport"=="ws" ]]; then
+        if [[ "$transport" == "ws" ]]; then
             read -p "是否开启TLS?(Y/n)" answer
-            if [[ "$answer"=="n" ]]; then
+            if [[ "$answer" == "n" ]]; then
                 tls="false"
                 echo ""
                 read -p "请输入ws host(可用来免流，默认 a.189.cn): " domain
@@ -654,7 +654,7 @@ install_ss() {
         fi
         yellow "TLS开启情况: $tls"
         echo ""
-        if [[ "$tls"=="true" ]]; then
+        if [[ "$tls" ==" true" ]]; then
             read -p "请输入证书路径(请不要以"~"开头！): " cert
             yellow "当前证书：$cert"
             read -p "请输入密钥路径(请不要以"~"开头！): " key
