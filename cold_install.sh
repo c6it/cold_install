@@ -67,7 +67,7 @@ done
 nginx_http() {
     rm /etc/nginx/nginx.conf
     cat >/etc/nginx/nginx.conf <<-EOF
-user www-date;
+user root;
 worker_processes auto;
 pid /run/nginx.pid;
 include /etc/nginx/modules-enabled/*.conf;
@@ -109,6 +109,8 @@ http {
     }
 }
 		EOF
+    systemctl stop nginx
+    systemctl start nginx
 }
 
 # shadow-tls
@@ -368,6 +370,7 @@ down_naive() {
     else
     # 不完善
         red "即将开始 编译 安装，可能耗时非常久(取决于cpu)，尽量不要中途退出！！！"
+        red "中途会卡住，别在意。"
         go mod tidy
         go env -w GO111MODULE=on
         go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
@@ -659,6 +662,12 @@ install_tuic() {
         cpu=x86_64
     elif [[ $bit = aarch64 ]]; then
         cpu=aarch64
+    elif [[ $bit = arm ]]; then
+        cpu=arm
+    elif [[ $bit = armv7 ]]; then
+        cpu=armv7
+    elif [[ $bit = armv8 ]]; then
+        cpu=arm
     else
         cpu="$bit"
         red "VPS的CPU架构为$bit，可能不支持！"
@@ -747,7 +756,7 @@ EOF
 
 install_base() {
     ${PACKAGE_UPDATE[int]}
-    ${PACKAGE_INSTALL[int]} curl wget openssl shuf python3 tar
+    ${PACKAGE_INSTALL[int]} curl openssl python3 tar
     sleep 3
     yellow "剩余部分请输入以下命令手动安装(可同时复制两行): "
     echo "bash <(curl https://bash.ooo/nami.sh)"
@@ -783,7 +792,7 @@ install_go() {
     tar -xf go*.linux-${cpu}.tar.gz -C /usr/local/
     sleep 3
     export PATH=\$PATH:/usr/local/go/bin
-    rm -f go*.linux-${cpu}.tar.gz
+    rm go*.linux-${cpu}.tar.gz
     yellow "当前golang版本: "
     go version
     yellow "请手动输入: "
