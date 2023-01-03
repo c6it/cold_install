@@ -669,7 +669,7 @@ install_ss() {
             if [[ "tls" == "true" ]]; then
                 plugin_opts=";tls;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
             elif [[ "tls" == "false" ]]; then
-                plugin_opts=";host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
+                plugin_opts=";host=${domain};path=${wspath}"
             fi
         elif [[ "$transport" == "quic" ]]; then
             plugin_opts=";mode=quic;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
@@ -719,8 +719,10 @@ EOF
         tar xvf *.tar.gz
         rm *.tar.gz
         mv v2ray-plugin_linux* v2Ray-plugin
-        cp $cert /etc/shadowsocks-rust/cert.crt
-        cp $key /etc/shadowsocks-rust/key.key
+        if [[ "$tls" == "true" ]]; then
+            cp $cert /etc/shadowsocks-rust/cert.crt
+            cp $key /etc/shadowsocks-rust/key.key
+        fi
         cat >/etc/shadowsocks-rust/config.json <<-EOF
 {
     "server": "${listen}",
