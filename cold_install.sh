@@ -714,8 +714,8 @@ EOF
         fi
         cd /etc/shadowsocks-rust
         yellow "开始下载 $plugin "
-        v2Ray-plugin_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/v2Ray-plugin)
-        curl -L -k -O https://github.com/shadowsocks/v2ray-plugin/releases/download/v${v2Ray-plugin_version}/v2ray-plugin-linux-${cpu}-v${v2Ray-plugin_version}.tar.gz
+        v2Ray_plugin_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/v2Ray-plugin)
+        curl -L -k -O https://github.com/shadowsocks/v2ray-plugin/releases/download/v${v2Ray_plugin_version}/v2ray-plugin-linux-${cpu}-v${v2Ray_plugin_version}.tar.gz
         tar xvf *.tar.gz
         rm *.tar.gz
         mv v2ray-plugin_linux* v2Ray-plugin
