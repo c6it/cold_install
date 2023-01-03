@@ -630,6 +630,7 @@ install_ss() {
             read -p "是否开启TLS?(Y/n)" answer
             if [[ "$answer"=="n" ]]; then
                 tls="false"
+                echo ""
                 read -p "请输入ws host(可用来免流，默认 a.189.cn): " domain
                 [[ -z "$domain" ]] && domain="a.189.cn"
                 yellow "当前ws host: $domain"
@@ -637,10 +638,10 @@ install_ss() {
                 tls="true"
             fi
             echo ""
-            yellow "请输入ws路径(以/开头，不懂直接回车): " wspath
+            read -p "请输入ws路径(以/开头，不懂直接回车): " wspath
             while true; do
                 if [[ -z "${wspath}" ]]; then
-                    tmp=$(openssl rand -hex 8)
+                    tmp=$(openssl rand -hex 6)
                     wspath="/$tmp"
                     break
                 elif [[ "${wspath:0:1}" != "/" ]]; then
