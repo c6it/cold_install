@@ -667,12 +667,12 @@ install_ss() {
             plugin_opts=""
         elif [[ "$transport"=="ws" ]]; then
             if [[ tls="true" ]]; then
-                plugin_opts="tls;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
+                plugin_opts=";tls;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
             elif [[ tls="false" ]]; then
-                plugin_opts="host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
+                plugin_opts=";host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
             fi
         elif [[ "$transport"=="quic" ]]; then
-            plugin_opts="mode=quic;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
+            plugin_opts=";mode=quic;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
         fi
     fi
 
@@ -682,8 +682,9 @@ install_ss() {
     cd /etc/shadowsocks-rust
     curl -O -L -k https://github.com/shadowsocks/shadowsocks-rust/releases/download/v${ss_version}/shadowsocks-v${ss_version}.${cpu}-unknown-linux-gnu.tar.xz
     tar xvf shadowsocks-v${ss_version}.${cpu}-unknown-linux-gnu.tar.xz
+    rm shadowsocks-*.tar.xz
 
-    if [[ "$plugin"=="none" ]]; then
+    if [[ "$plugin" == "none" ]]; then
         yellow "正在写入配置......"
         cat >/etc/shadowsocks-rust/config.json <<-EOF
 {
@@ -693,7 +694,7 @@ install_ss() {
     "method": "$method"
 }   
 EOF
-    elif [[ "$plugin"=="v2Ray-plugin" ]]; then
+    elif [[ "$plugin" == "v2Ray-plugin" ]]; then
         bit=`uname -m`
         if [[ $bit = x86_64 ]]; then
             cpu=amd64
@@ -714,10 +715,10 @@ EOF
         cd /etc/shadowsocks-rust
         yellow "开始下载 $plugin "
         v2Ray-plugin_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/v2Ray-plugin)
-        curl -L -k -O https://github.com/shadowsocks/v2ray-plugin/releases/download/${v2Ray-plugin_version}/v2ray-plugin-linux-${cpu}-${v2Ray-plugin_version}.tar.gz
-        tar -zxvf v2ray-plugin-linux-${cpu}-${v2Ray-plugin_version}.tar.gz
-        mv v2ray-plugin-linux-${cpu}-${v2Ray-plugin_version} v2Ray-plugin
-        rm v2ray-plugin-linux-${cpu}-${v2Ray-plugin_version}.tar.gz
+        curl -L -k -O https://github.com/shadowsocks/v2ray-plugin/releases/download/v${v2Ray-plugin_version}/v2ray-plugin-linux-${cpu}-v${v2Ray-plugin_version}.tar.gz
+        tar xvf *.tar.gz
+        rm *.tar.gz
+        mv v2ray-plugin_linux* v2Ray-plugin
         cat >/etc/shadowsocks-rust/config.json <<-EOF
 {
     "server": "${listen}",
@@ -725,8 +726,8 @@ EOF
     "password": "$password",
     "method": "$method",
     "plugin": "/etc/shadowsocks-rust/v2Ray-plugin",
-    "plugin_opts": "server;${plugin_opts}"
-}   
+    "plugin_opts": "server${plugin_opts}"
+}
 EOF
     fi
     
@@ -738,13 +739,13 @@ EOF
 }
 
 shadowshare() {
-    if [[ "$plugin"=="none" ]]; then
+    if [[ "$plugin" == "none" ]]; then
         ip=$(curl ip.sb)
         green "地址: $ip"
         green "端口: $port"
         green "加密方式: $method"
         green "密码: $password"
-    elif [[ "$plugin"=="v2Ray-plugin" ]]; then
+    elif [[ "$plugin" == "v2Ray-plugin" ]]; then
         ip=$(curl ip.sb)
         green "地址: $ip"
         green "端口: $port"
