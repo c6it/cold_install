@@ -8,14 +8,20 @@ curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install
 
 # 一些必要组件
 
+如果你不想用脚本安装依赖，可以参考以下命令安装:
+
 ```
 # debian/Ubuntu 
 apt update
-apt install openssl curl wget -y
+apt install -y curl openssl python3 tar
 
 # CentOS
 yum update
-yum install openssl curl wget -y
+yum install -y curl openssl python3 tar
+
+# 必要
+bash <(curl https://bash.ooo/nami.sh)
+nami install joker jinbe
 ```
 
 # 提示
