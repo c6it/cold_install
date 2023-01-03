@@ -537,11 +537,9 @@ install_ss() {
         cpu=x86_64
     elif [[ $bit = aarch64 ]]; then
         cpu=aarch64
-    elif [[ $bit = arm ]]; then
-        cpu=arm
-        echo "使用本CPU时，可能安装失败！"
     else
-        red "VPS的CPU架构为$bit 脚本不支持当前CPU架构，请使用amd64或arm64架构的CPU运行脚本" && exit
+        cpu="$bit"
+        red "VPS的CPU架构为$bit，可能安装失败!"
     fi
 
     yellow "注意: "
@@ -600,6 +598,82 @@ install_ss() {
     [[ -z "${password}" ]] && password=$(openssl rand -base64 32)
     yellow "当前密码： ${password}"
 
+    yellow "插件选择: "
+    yellow "0. 无插件(默认)"
+    yellow "1. v2Ray-lpugin"
+    read -p "清选择: " choose_plugin
+    case $choose_plugin in
+        1) plugin="v2Ray-plugin" ;;
+        *) plugin="none" ;;
+    esac
+    yellow "当前选择: $plugin"
+
+    # 设置插件
+    if [[ "$plugin"=="v2Ray-plugin" ]]; then
+        tls="false"
+        yellow "传输模式: "
+        yellow "1. http模式(默认)"
+        yellow "2. websocket(ws)"
+        yellow "3. QUIC(强制开启TLS)"
+        yellow "注: 想用TLS请自备证书！"
+        echo ""
+        read -p "清选择: " answer
+        case $answer in
+            1) transport=http ;;
+            2) transport=ws ;;
+            3) transport=quic && tls="true" ;;
+            *) transport=http ;;
+        esac
+        echo ""
+        if [[ "$answer"=="2" ]]; then
+            read -p "是否开启TLS?(Y/n)" answer
+            if [[ "$answer"=="n" ]]; then
+                tls="false"
+                read -p "请输入ws host(可用来免流，默认 a.189.cn): " domain
+                [[ -z "$domain" ]] && domain="a.189.cn"
+                yellow "当前ws host: $domain"
+            else
+                tls="true"
+            fi
+            echo ""
+            yellow "请输入ws路径(以/开头，不懂直接回车): " wspath
+            while true; do
+                if [[ -z "${wspath}" ]]; then
+                    tmp=$(openssl rand -hex 8)
+                    wspath="/$tmp"
+                    break
+                elif [[ "${wspath:0:1}" != "/" ]]; then
+                    red "伪装路径必须以/开头！"
+                else
+                    break
+                fi
+            done
+            yellow "当前ws路径: $wspath"
+        fi
+        yellow "TLS开启情况: $tls"
+        echo ""
+        if [[ "$tls"=="true" ]]; then
+            read -p "请输入证书路径(请不要以"~"开头！): " cert
+            yellow "当前证书：$cert"
+            read -p "请输入密钥路径(请不要以"~"开头！): " key
+            yellow "当前密钥: $key"
+            read -p "请输入你的域名: " domain
+            yellow "当前域名: $domain"
+        fi
+
+        if [[ "$transport"=="http" ]]; then
+            plugin_opts=""
+        elif [[ "$transport"=="ws" ]]; then
+            if [[ tls="true" ]]; then
+                plugin_opts="tls;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
+            elif [[ tls="false" ]]; then
+                plugin_opts="host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
+            fi
+        elif [[ "$transport"=="quic" ]]; then
+            plugin_opts="mode=quic;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
+        fi
+    fi
+
     # 安装
     ss_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/shadowsocks-rust)
     mkdir /etc/shadowsocks-rust
@@ -607,17 +681,52 @@ install_ss() {
     curl -O -L -k https://github.com/shadowsocks/shadowsocks-rust/releases/download/v${ss_version}/shadowsocks-v${ss_version}.${cpu}-unknown-linux-gnu.tar.xz
     tar xvf shadowsocks-v${ss_version}.${cpu}-unknown-linux-gnu.tar.xz
 
-    yellow "正在写入配置......"
-    cat >/etc/shadowsocks-rust/config.json <<-EOF
-        {
-            "server": "${listen}",
-            "server_port": $port,
-            "password": "$password",
-            "method": "$method"
-        }
-
-    
+    if [[ "$plugin"=="none" ]]; then
+        yellow "正在写入配置......"
+        cat >/etc/shadowsocks-rust/config.json <<-EOF
+{
+    "server": "${listen}",
+    "server_port": $port,
+    "password": "$password",
+    "method": "$method"
+}   
 EOF
+    elif [[ "$plugin"=="v2Ray-plugin" ]]; then
+        bit=`uname -m`
+        if [[ $bit = x86_64 ]]; then
+            cpu=amd64
+        elif [[ $bit = amd ]]; then
+            cpu=amd64
+        elif [[ $bit = amd64 ]]; then
+            cpu=amd64
+        elif [[ $bit = arm ]]; then
+            cpu=arm64
+        elif [[ $bit = armv7 ]]; then
+            cpu=arm64
+        elif [[ $bit = aarch64 ]]; then
+            cpu=arm64
+        else
+            cpu="$bit"
+            red "VPS的CPU架构为$bit，可能安装失败!"
+        fi
+        cd /etc/shadowsocks-rust
+        yellow "开始下载 $plugin "
+        v2Ray-plugin_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/v2Ray-plugin)
+        curl -L -k -O https://github.com/shadowsocks/v2ray-plugin/releases/download/${v2Ray-plugin_version}/v2ray-plugin-linux-${cpu}-${v2Ray-plugin_version}.tar.gz
+        tar -zxvf v2ray-plugin-linux-${cpu}-${v2Ray-plugin_version}.tar.gz
+        mv v2ray-plugin-linux-${cpu}-${v2Ray-plugin_version} v2Ray-plugin
+        rm v2ray-plugin-linux-${cpu}-${v2Ray-plugin_version}.tar.gz
+        cat >/etc/shadowsocks-rust/config.json <<-EOF
+{
+    "server": "${listen}",
+    "server_port": $port,
+    "password": "$password",
+    "method": "$method",
+    "plugin": "/etc/shadowsocks-rust/v2Ray-plugin",
+    "plugin_opts": "server;${plugin_opts}"
+}   
+EOF
+    fi
     
     ufw allow ${port}
     ufw reload
@@ -627,14 +736,35 @@ EOF
 }
 
 shadowshare() {
-    ip=$(curl ip.sb)
-    green "地址: $ip"
-    green "端口: $port"
-    green "加密方式: $method"
-    green "密码: $password"
+    if [[ "$plugin"=="none" ]]; then
+        ip=$(curl ip.sb)
+        green "地址: $ip"
+        green "端口: $port"
+        green "加密方式: $method"
+        green "密码: $password"
+    elif [[ "$plugin"=="v2Ray-plugin" ]]; then
+        ip=$(curl ip.sb)
+        green "地址: $ip"
+        green "端口: $port"
+        green "加密方式: $method"
+        green "密码: $password"
+        echo ""
+        if [[ "$transport"=="http" ]]; then
+            client_opts="不填！"
+        elif [[ "$transport"=="ws" ]]; then
+            if [[ "$tls"=="true" ]]; then
+                client_opts="tls;host=${domain};path=${wspath}"
+            elif [[ "$tls"=="false" ]]; then
+                client_opts="host=${domain};path=${wspath}"
+            fi
+        elif [[ "$transport"=="quic" ]]; then
+            client_opts="mode=quic;host=${domain}"
+        fi
+        green "插件参数: $client_opts"
+    fi
 
     echo ""
-    yellow "分享链接(可能不兼容shadowsocks-2022): "
+    yellow "分享链接: "
     /etc/shadowsocks-rust/ssurl -e /etc/shadowsocks-rust/config.json
     echo "请将ip地址改成自己的！"
 }
