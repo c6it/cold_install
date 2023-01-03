@@ -209,8 +209,8 @@ install_shadow_tls() {
     yellow "要求： "
     yellow "1. 最好为shadowsocks/VMess，用VLESS、socks5相当于裸奔"
     yellow "2. 不要有其他传输层配置！！！不要有什么ws、tls，不要是UDP的协议！！！"
-    read -p ": " $forward
-    [[ -z  "$forward" ]] && red "请输入已经搭好的节点端口！"
+    read -p "请输入: " forward
+    [[ -z "$forward" ]] && red "请输入已经搭好的节点端口！" && exit 1
     yellow "当前后端节点地址: $forward"
     echo ""
     read -p "请输入shadow-tls密码: " password
@@ -226,7 +226,7 @@ install_shadow_tls() {
     [[ -z "$fake_link" ]] && fake_link="www.bing.com"
     yellow "当前伪装地址: $fake_link"
     echo ""
-    read -p "请输入伪装网址的端口(默认443): " $fake_port
+    read -p "请输入伪装网址的端口(默认443): " fake_port
     [[ -z "$fake_port" ]] && $fake_port=443
     yellow "当前伪装网址的端口: $fake_port"
     echo ""
