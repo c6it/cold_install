@@ -10,7 +10,7 @@
 curl -O https://tdjnodj.github.io/cold_install/cold_install.sh && bash cold_install.sh
 ```
 
-最新版:
+最新版(仅供开发测试，勿用):
 
 ```shell
 curl -O https://raw.githubusercontent.com/tdjnodj/cold_install/main/cold_install.sh && bash cold_install.sh
@@ -60,7 +60,7 @@ nami install joker jinbe
 
 - [x] [TUIC](https://github.com/EAimTY/tuic)
 - [x] [shadowsocks-rust](https://github.com/shadowsocks/shadowsocks-rust)
-- [ ] shadowsocks-plugin: [v2ray](https://github.com/shadowsocks/v2ray-plugin)/[xray](https://github.com/teddysun/xray-plugin)(已实现) && [QUIC](https://github.com/shadowsocks/qtun) && [KCP](https://github.com/xtaci/kcptun)
+- [ ] shadowsocks-plugin: [v2ray](https://github.com/shadowsocks/v2ray-plugin)/[xray](https://github.com/teddysun/xray-plugin)(已实现) && [qtun](https://github.com/shadowsocks/qtun) && [KCPTUN](https://github.com/xtaci/kcptun)
 - [x] [naiveproxy](https://github.com/klzgrad/naiveproxy)
 - [ ] [mieru](https://github.com/enfein/mieru/)
 - [ ] [brook](https://github.com/txthinking/brook)
@@ -73,7 +73,7 @@ nami install joker jinbe
 
 F: 怎么要填那么多信息啊？我不知道怎么办？
 
-Q: 大多数的脚本虽然复杂、精心设计，但留给用户定义的部分比较少。为了满足一些控制欲强但技术不够的用户，我给出了很多自定义的项目。如果你不懂，完全可以不填，除了一些填路径等地方，其他大部分交互都可以直接回车启用默认值。
+Q: 大多数的脚本虽然复杂、精心设计，但留给用户定义的部分比较少。为了满足一些控制欲强但技术不够的用户，我给出了很多自定义的选项。如果你不懂，完全可以不填，除了一些填路径等地方，其他大部分交互都可以直接回车启用默认值。
 
 ---------------------------------------------------------
 
@@ -85,7 +85,7 @@ Q: shadowsocks-libev官方写到:"Future development moved to shadowsocks-rust."
 
 F: 为什么安装的过程很快，甚至填写信息的时间都比安装过程久？
 
-Q: 别的脚本安装依赖和安装内核是连在一起的，但是我把依赖单独做成一个选项。另外，得益于[TxThinking](https://github.com/txthinking)的[joker](https://github.com/txthinking/joker)和[jinbe](https://github.com/txthinking/jinbe)，我能一键将内核设置为守护进程。
+Q: 别的脚本安装依赖和安装内核是连在一起的，但是我把依赖单独做成一个选项。另外，得益于[TxThinking](https://github.com/txthinking)的[joker](https://github.com/txthinking/joker)和[jinbe](https://github.com/txthinking/jinbe)，使得我能一键将内核设置为守护进程。
 
 # 感谢
 
