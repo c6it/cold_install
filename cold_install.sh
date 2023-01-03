@@ -665,14 +665,17 @@ install_ss() {
 
         if [[ "$transport" == "http" ]]; then
             plugin_opts=""
+            semicolon=""
         elif [[ "$transport" == "ws" ]]; then
-            if [[ "tls" == "true" ]]; then
-                plugin_opts=";tls;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
-            elif [[ "tls" == "false" ]]; then
-                plugin_opts=";host=${domain};path=${wspath}"
+            semicolon=";"
+            if [[ "$tls" == "true" ]]; then
+                plugin_opts="tls;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key;path=${wspath}"
+            elif [[ "$tls" == "false" ]]; then
+                plugin_opts="host=${domain};path=${wspath}"
             fi
         elif [[ "$transport" == "quic" ]]; then
-            plugin_opts=";mode=quic;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
+            semicolon=";"
+            plugin_opts="mode=quic;host=${domain};cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
         fi
     fi
 
@@ -730,7 +733,7 @@ EOF
     "password": "$password",
     "method": "$method",
     "plugin": "/etc/shadowsocks-rust/v2Ray-plugin",
-    "plugin_opts": "server${plugin_opts}"
+    "plugin_opts": "server${semicolon}${plugin_opts}"
 }
 EOF
     fi
