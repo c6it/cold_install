@@ -814,10 +814,9 @@ EOF
         [[ -z "$qtun_version" ]] && qtun_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/qtun)
         cd /etc/shadowsocks-rust
         curl -L -O -k https://github.com/shadowsocks/qtun/releases/download/v${qtun_version}/qtun-v${qtun_version}.${cpu}-unknown-linux-musl.tar.xz
-        tar xvf *.tar.gz
-        rm *.tar.gz
-        mv /etc/shadowsocks-rust/qtun-v${qtun_version}.${cpu}-unknown-linux-musl/qtun-server  /etc/shadowsocks-rust/qtun-server
-        rm -rf /etc/shadowsocks-rust/qtun-v${qtun_version}.${cpu}-unknown-linux-musl/
+        tar xvf qtun*
+        rm qtun*.tar.xz
+        rm qtun-client
         cp $cert /etc/shadowsocks-rust/cert.crt
         cp $key /etc/shadowsocks-rust/key.key
         cat >/etc/shadowsocks-rust/config.json <<-EOF
