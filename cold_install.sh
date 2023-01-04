@@ -707,6 +707,8 @@ install_ss() {
         yellow "当前证书: $cert"
         read -p "请输入私钥路径(完整，不要包含"~"): " key
         yellow "当前私钥: $key" 
+        read -p "请输入您的域名(默认: a.189.cn): " domain
+        yellow "当前域名: $domain"
         sleep 1
     fi
 
@@ -881,7 +883,7 @@ shadowshare() {
         green "密码: $password"
         green "插件: qtun-client"
         echo ""
-        green "插件参数: 无"
+        green "插件参数: host=${domain}"
     fi
 
     echo ""
