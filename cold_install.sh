@@ -544,6 +544,8 @@ install_ss() {
 
     yellow "注意: "
     yellow "1. 请先使用 101 选项  安装依赖。"
+    yellow "2. 使用带TLS的插件时，需要自备证书。"
+    yellow "3. 使用 qtun 插件时，要确保本机 9000 端口未被占用"
     yellow "回想一下有什么没做。"
     echo ""
     read -p "按任意键继续，按ctrl + c退出" rubbish
@@ -601,15 +603,17 @@ install_ss() {
     yellow "插件选择: "
     yellow "0. 无插件(默认)"
     yellow "1. *Ray-lpugin"
+    yellow "2. qtun"
     read -p "清选择: " choose_plugin
     case $choose_plugin in
         1) plugin="v2Ray-plugin" ;;
+        2) plugin="qtun" ;;
         *) plugin="none" ;;
     esac
     yellow "当前选择: $plugin"
 
     # 设置插件
-    if [[ "$plugin"=="v2Ray-plugin" ]]; then
+    if [[ "$plugin" == "v2Ray-plugin" ]]; then
         tls="false"
         echo ""
         yellow "传输模式: "
@@ -698,6 +702,14 @@ install_ss() {
         fi
     fi
 
+    if [[ "$plugin" == "qtun" ]]; then
+        read -p "请输入证书路径(完整，不要包含"~"): " cert
+        yellow "当前证书: $cert"
+        read -p "请输入私钥路径(完整，不要包含"~"): " key
+        yellow "当前私钥: $key" 
+        sleep 1
+    fi
+
     # 安装
     ss_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/shadowsocks-rust)
     mkdir /etc/shadowsocks-rust
@@ -779,6 +791,47 @@ EOF
     "plugin_opts": "server${semicolon}${plugin_opts}"
 }
 EOF
+    elif [[ "$plugin" == "qtun" ]]; then
+        if [[ $bit = x86_64 ]]; then
+            cpu=x86_64
+        elif [[ $bit = amd ]]; then
+            cpu=x86_64
+        elif [[ $bit = amd64 ]]; then
+            cpu=x86_64
+        elif [[ $bit = arm ]]; then
+            cpu=aarch64
+        elif [[ $bit = armv7 ]]; then
+            cpu=aarch64
+        elif [[ $bit = aarch64 ]]; then
+            cpu=aarch64
+        else
+            cpu=x86_64
+            red "VPS的CPU架构为$bit，可能安装失败!"
+        fi
+        qtun_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/qtun)
+        yellow "检测到的最新版本: $qtun_version"
+        read -p "请填写qtun版本(可直接回车): " qtun_version
+        [[ -z "$qtun_version" ]] && qtun_version=$(curl -k https://raw.githubusercontent.com/tdjnodj/cold_install/api/qtun)
+        cd /etc/shadowsocks-rust
+        curl -L -O -k https://github.com/shadowsocks/qtun/releases/download/v${qtun_version}/qtun-v${qtun_version}.${cpu}-unknown-linux-musl.tar.xz
+        tar xvf *.tar.gz
+        rm *.tar.gz
+        mv /etc/shadowsocks-rust/qtun-v${qtun_version}.${cpu}-unknown-linux-musl/qtun-server  /etc/shadowsocks-rust/qtun-server
+        rm -rf /etc/shadowsocks-rust/qtun-v${qtun_version}.${cpu}-unknown-linux-musl/
+        cp $cert /etc/shadowsocks-rust/cert.crt
+        cp $key /etc/shadowsocks-rust/key.key
+        cat >/etc/shadowsocks-rust/config.json <<-EOF
+{
+    "server": "${listen}",
+    "server_port": $port,
+    "password": "$password",
+    "method": "$method",
+    "mode":"tcp_only",
+    "plugin": "/etc/shadowsocks-rust/qtun-server",
+    "plugin_opts": "cert=/etc/shadowsocks-rust/cert.crt;key=/etc/shadowsocks-rust/key.key"
+}
+EOF
+        ufw allow 9000
     fi
     
     ufw allow ${port}
@@ -821,6 +874,15 @@ shadowshare() {
             fi
         fi
         green "插件参数: $client_opts"
+    elif [[ "$plugin" == "qtun" ]]; then
+        ip=$(curl ip.sb)
+        green "地址: $ip"
+        green "端口: $port"
+        green "加密方式: $method"
+        green "密码: $password"
+        green "插件: qtun-client"
+        echo ""
+        green "插件参数: 无"
     fi
 
     echo ""
