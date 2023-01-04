@@ -801,7 +801,7 @@ shadowshare() {
         green "端口: $port"
         green "加密方式: $method"
         green "密码: $password"
-        green "插件: $plugin"
+        green "插件: v2Ray/xray"
         echo ""
         if [[ "$transport" == "http" ]]; then
             client_opts="不填！"
@@ -813,6 +813,12 @@ shadowshare() {
             fi
         elif [[ "$transport" == "quic" ]]; then
             client_opts="mode=quic;host=${domain}"
+        elif [[ "$transport" == "gRPC" ]]; then
+            if [[ "$tls" == "true" ]]; then
+                client_opts="tls;host=${domain};mode=grpc"
+            elif [[ "$tls" == "false" ]]; then
+                client_opts="host=${domain};mode=grpc"
+            fi
         fi
         green "插件参数: $client_opts"
     fi
@@ -820,7 +826,7 @@ shadowshare() {
     echo ""
     yellow "分享链接(如果使用插件则不能使用！): "
     /etc/shadowsocks-rust/ssurl -e /etc/shadowsocks-rust/config.json
-    echo "请将ip地址改成自己的！"
+    red "请将ip地址改成自己的！"
 }
 
 uninstall_ss() {
