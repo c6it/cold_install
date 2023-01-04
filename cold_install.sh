@@ -201,7 +201,7 @@ install_shadow_tls() {
     yellow "监听ipv4请输入 0.0.0.0(默认)"
     yellow "监听ipv6请输入 ::"
     yellow "不要输多个ip！不懂别输别的"
-    read -p "" listen
+    read -p "请输入: " listen
     [[ -z "$listen" ]] && listen="0.0.0.0"
     yellow "当前监听: $listen"
     echo ""
@@ -213,7 +213,7 @@ install_shadow_tls() {
     [[ -z "$forward" ]] && red "请输入已经搭好的节点端口！" && exit 1
     yellow "当前后端节点地址: $forward"
     echo ""
-    read -p "请输入shadow-tls密码: " password
+    read -p "请输入shadow-tls密码(默认随机): " password
     [[ -z "$password" ]] && password=$(openssl rand -base64 6)
     yellow "当前密码: $password"
     echo ""
@@ -309,7 +309,7 @@ install_trojan() {
     [[ -z "$port" ]] && port="443"
     yellow "当前端口: $port"
     echo ""
-    read -p "请输入trojan密码: " password
+    read -p "请输入trojan密码(默认随机): " password
     [[ -z "${password}" ]] && password=$(openssl rand -base64 16)
     yellow "当前密码: $password"
     echo ""
@@ -442,11 +442,11 @@ install_naive() {
     fi
     yellow "当前端口: $port"
     echo ""
-    read -p "请输入用户名: " username
+    read -p "请输入用户名(默认随机): " username
     [[ -z "${username}" ]] && username=$(openssl rand -base64 6)
     yellow "当前用户名: $username"
     echo ""
-    read -p "请输入密码: " password
+    read -p "请输入密码(默认随机): " password
     [[ -z "${password}" ]] && password=$(openssl rand -base64 16)
     yellow "当前密码: $password"
 
@@ -454,7 +454,7 @@ install_naive() {
     read -p "请输入域名: " domain
     [[ -z "${domain}" ]] && red "请输入域名！" && exit 1
     echo ""
-    read -p "请输入邮箱(申请证书用):  " email
+    read -p "请输入邮箱(申请证书用)(默认随机):  " email
     if [[ -z "${email}" ]]; then
         automail=$(date +%s%N | md5sum | cut -c 1-16)
         email=${automail}@gmail.com
@@ -462,7 +462,7 @@ install_naive() {
     yellow "当前邮箱: $email"
 
     echo ""
-    echo "请输入反向代理网址(千万别留空！！！！！！！): "
+    echo "请输入反向代理网址: "
     read -p "尽量使用https网址...... " forward_link
     [[ -z "$forward_link" ]] && forward_link="https://www.bing.com"
     yellow "当前反代地址: $forward_link"
@@ -511,8 +511,9 @@ uninstall_naive() {
 }
 
 start_naive() {
-    joker /etc/caddy2/caddy run
-    jinbe joker /etc/caddy2/caddy run
+    cd /etc/caddy2/
+    joker ./caddy run
+    jinbe joker ./caddy run
 }
 
 naive_menu() {
@@ -563,7 +564,7 @@ install_ss() {
     yellow "监听ipv4请输入 0.0.0.0(默认)"
     yellow "监听ipv6请输入 ::"
     yellow "不要输多个ip！不懂别输别的"
-    read -p "" listen
+    read -p "请输入: " listen
     [[ -z "$listen" ]] && listen="0.0.0.0"
     yellow "当前监听: $listen"
 
@@ -596,7 +597,7 @@ install_ss() {
     openssl rand -base64 16
     yellow "注意： 不填将会使用32位密码"
     yellow "注意：除2022-blake3-aes-128-gcm使用16位密码外，其他2022系加密方式需要使用32位密码！其他随意"
-    read -p "请输入密码: " password
+    read -p "请输入密码(默认随机): " password
     [[ -z "${password}" ]] && password=$(openssl rand -base64 32)
     yellow "当前密码： ${password}"
 
@@ -995,7 +996,7 @@ install_tuic() {
     [[ -z "$listen" ]] && listen="::"
     yellow "当前监听: $listen"
 
-    read -p "请输入密码: " password
+    read -p "请输入密码(默认随机): " password
     [[ -z "$password" ]] && password=$(openssl rand -base64 8)
     yellow "当前密码: $password"
 
@@ -1075,7 +1076,7 @@ install_go() {
         cpu=arm64
     elif [[ $bit = armv8 ]]; then
         cpu=arm64
-    elif [[ $bit = armv8 ]]; then
+    elif [[ $bit = armv7 ]]; then
         cpu=arm64
     else 
         cpu=$bit
@@ -1089,10 +1090,15 @@ install_go() {
     sleep 3
     export PATH=\$PATH:/usr/local/go/bin
     rm go*.linux-${cpu}.tar.gz
-    yellow "当前golang版本: "
+    cat >/root/.bash_profile <<-EOF
+export PATH=\$PATH:/usr/local/go/bin
+EOF
+    source /root/.bash_profile
+    yellow "检查当前golang版本: "
     go version
     yellow "请手动输入: "
-    echo "export PATH=\$PATH:/usr/local/go/bin"
+    red "export PATH=\$PATH:/usr/local/go/bin"
+    red "source /root/.bash_profile"
     echo ""
     echo "常见错误原因: 未删除旧的go"
 }
