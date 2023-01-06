@@ -207,11 +207,11 @@ install_mita() {
     yellow "2. rpm(其他)"
     read -p "清选择: " answer
     case $answer in
-        2) install_type=deb ;;
-        *) install_type=rpm ;;
+        2) install_type=rpm ;;
+        *) install_type=deb ;;
     esac
     yellow "当前安装方式: $install_type"
-    if [[ "$install_typr" == "deb" ]]; then
+    if [[ "$install_type" == "deb" ]]; then
         bit=`uname -m`
         if [[ $bit = x86_64 ]]; then
             cpu=amd64
@@ -234,7 +234,7 @@ install_mita() {
             red "VPS的CPU架构为$bit，可能安装失败!"
         fi
         curl -O -L -k https://github.com/enfein/mieru/releases/download/v${mita_version}/mita_${mita_version}_${cpu}.deb
-        sudo dpkg -i mita*.deb
+        dpkg -i mita*.deb
         rm mita*.deb
     else
         bit=`uname -m`
@@ -259,7 +259,7 @@ install_mita() {
             red "VPS的CPU架构为$bit，可能安装失败!"
         fi
         curl -O -L -k https://github.com/enfein/mieru/releases/download/v${mita_version}/mita-${mita_version}.${cpu}.rpm
-        sudo rpm -Uvh --force mita*.rpm
+        rpm -Uvh --force mita*.rpm
         rm mita*.rpm
     fi
     cat >/root/mita.json <<-EOF
@@ -281,6 +281,10 @@ install_mita() {
 }
 EOF
     mita apply config /root/mita.json
+    mita_start
+
+    ufw allow ${port}
+    ufw reload
 
     yellow "装完了?"
 
@@ -301,18 +305,25 @@ mita_stop() {
     mita stop
 }
 
+uninstall_mita() {
+    rm -rf /etc/mita
+    rm /usr/bin/mita
+}
+
 mita_menu() {
     echo "mita(mieru)"
     echo ""
     echo "1. 安装 mita"
     echo "2. 启动 mita"
     echo "3. 停止 mita"
+    echo "4. 卸载 mita"
     echo ""
     read -p "清选择: " answer
     case $answer in
         1) install_mita ;;
         2) mita_start ;;
         3) mita_stop ;;
+        4) uninstall_mita ;;
         *) exit 1 ;;
     esac
 }
